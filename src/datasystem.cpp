@@ -11,10 +11,6 @@
 #include <mathutil/color.h>
 #include <exprtk.hpp>
 
-#pragma comment(lib,"vfilesystem.lib")
-#pragma comment(lib,"util.lib")
-#pragma comment(lib,"mathutil.lib")
-
 static ds::ValueTypeMap *g_DataValueFactoryMap = nullptr;
 
 #pragma optimize("",off)
