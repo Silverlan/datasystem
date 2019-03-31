@@ -19,7 +19,9 @@ set(LIB_TYPE SHARED)
 add_definitions(-DDATASYSTEM_DLL)
 add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
 
-add_compile_options(/bigobj)
+if(WIN32)
+	add_compile_options(/bigobj)
+endif()
 
 function(def_vs_filters FILE_LIST)
 	foreach(source IN LISTS FILE_LIST)
