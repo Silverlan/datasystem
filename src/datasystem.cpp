@@ -13,7 +13,6 @@
 
 static ds::ValueTypeMap *g_DataValueFactoryMap = nullptr;
 
-#pragma optimize("",off)
 std::shared_ptr<ds::Settings> ds::create_data_settings(const std::unordered_map<std::string,std::string> &enums) {return std::make_shared<ds::Settings>(enums);}
 void ds::register_data_value_type(const std::string &type,const std::function<Value*(Settings&,const std::string&)> &factory)
 {
@@ -569,4 +568,3 @@ int ds::Bool::GetInt() const {return m_value;}
 float ds::Bool::GetFloat() const {return static_cast<float>(m_value);}
 bool ds::Bool::GetBool() const {return (m_value != 0) ? true : false;}
 REGISTER_DATA_TYPE(ds::Bool,bool)
-#pragma optimize("",on)
