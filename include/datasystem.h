@@ -139,6 +139,7 @@ namespace ds
 		Value(Settings &dataSettings);
 	public:
 		virtual std::string GetString() const=0;
+		virtual std::string GetTypeString() const=0;
 		virtual int GetInt() const=0;
 		virtual float GetFloat() const=0;
 		virtual bool GetBool() const=0;
@@ -183,6 +184,7 @@ namespace ds
 		const std::string &GetValue() const;
 
 		virtual std::string GetString() const override;
+		virtual std::string GetTypeString() const override;
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
@@ -200,6 +202,7 @@ namespace ds
 		int32_t GetValue() const;
 
 		virtual std::string GetString() const override;
+		virtual std::string GetTypeString() const override;
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
@@ -217,6 +220,7 @@ namespace ds
 		float GetValue() const;
 
 		virtual std::string GetString() const override;
+		virtual std::string GetTypeString() const override;
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
@@ -234,6 +238,7 @@ namespace ds
 		bool GetValue() const;
 
 		virtual std::string GetString() const override;
+		virtual std::string GetTypeString() const override;
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
@@ -244,7 +249,8 @@ namespace ds
 #pragma warning(pop)
 
 #define REGISTER_DATA_TYPE(className,typeName) \
-	auto *_reg_datatype_##typeName = new ds::__reg_datatype(#typeName,[](ds::Settings &dataSettings,const std::string &value) -> ds::Value* {return new className(dataSettings,value);});
+	auto *_reg_datatype_##typeName = new ds::__reg_datatype(#typeName,[](ds::Settings &dataSettings,const std::string &value) -> ds::Value* {return new className(dataSettings,value);}); \
+	std::string className::GetTypeString() const {return #typeName;}
 
 template<class TType>
 	bool ds::Block::IsType(const std::string &key) const
