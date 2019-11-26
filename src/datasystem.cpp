@@ -169,7 +169,7 @@ void ds::Block::AddData(const std::string &name,const std::shared_ptr<Base> &dat
 	if(it == m_data.end())
 	{
 		data->m_dataSettings = m_dataSettings;
-		m_data.insert(decltype(m_data)::value_type(lname,data));
+		m_data[lname] = data;
 		return;
 	}
 	if(!data->IsBlock())
