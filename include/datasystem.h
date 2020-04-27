@@ -83,17 +83,21 @@ namespace ds
 		virtual bool IsBlock() const override;
 		const std::unordered_map<std::string,std::shared_ptr<Base>> *GetData() const;
 		void DetachData(Base &val);
+		void RemoveValue(const std::string &key);
+		bool IsEmpty() const;
 		// Creates a copy of all data contained in this block
 		Block *Copy();
 		virtual void AddData(const std::string &name,const std::shared_ptr<Base> &data);
 		std::shared_ptr<ds::Base> AddValue(const std::string &type,const std::string &name,const std::string &value);
+		std::shared_ptr<Block> AddBlock(const std::string &name);
 		const std::shared_ptr<Base> &GetValue(const std::string &key) const;
 		std::shared_ptr<Value> GetDataValue(const std::string &key) const;
-		std::shared_ptr<Block> GetBlock(const std::string &name,unsigned int id) override;
-		std::string GetString(const std::string &key) const;
-		int GetInt(const std::string &key) const;
-		float GetFloat(const std::string &key) const;
-		bool GetBool(const std::string &key) const;
+		std::shared_ptr<Block> GetBlock(const std::string &name,unsigned int id=0) override;
+		bool HasValue(const std::string &key) const;
+		std::string GetString(const std::string &key,const std::string &default="") const;
+		int GetInt(const std::string &key,int default=0) const;
+		float GetFloat(const std::string &key,float default=0.f) const;
+		bool GetBool(const std::string &key,bool default=false) const;
 
 		bool GetString(const std::string &key,std::string *data) const;
 		bool GetInt(const std::string &key,int *data) const;

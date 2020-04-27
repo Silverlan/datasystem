@@ -142,6 +142,14 @@ std::shared_ptr<ds::Block> ds::Block::GetBlock(const std::string &name,unsigned 
 		return std::static_pointer_cast<ds::Block>(data);
 	return static_cast<ds::Container*>(data.get())->GetBlock(id);
 }
+bool ds::Block::IsEmpty() const {return m_data.empty();}
+void ds::Block::RemoveValue(const std::string &key)
+{
+	auto it = m_data.find(key);
+	if(it == m_data.end())
+		return;
+	m_data.erase(it);
+}
 void ds::Block::DetachData(ds::Base &val)
 {
 	auto it = std::find_if(m_data.begin(),m_data.end(),[&val](const std::pair<std::string,std::shared_ptr<Base>> &pair) {
@@ -202,6 +210,15 @@ std::shared_ptr<ds::Value> ds::Block::GetDataValue(const std::string &key) const
 		return nullptr;
 	return std::static_pointer_cast<ds::Value>(it->second);
 }
+std::shared_ptr<ds::Block> ds::Block::AddBlock(const std::string &name)
+{
+	auto val = GetValue(name);
+	if(val && val->IsBlock())
+		return std::static_pointer_cast<ds::Block>(val);
+	auto block = std::make_shared<ds::Block>(GetDataSettings());
+	AddData(name,block);
+	return block;
+}
 std::shared_ptr<ds::Base> ds::Block::AddValue(const std::string &type,const std::string &name,const std::string &value)
 {
 	static std::shared_ptr<ds::Base> nptr = nullptr;
@@ -250,32 +267,33 @@ bool ds::Block::GetBool(const std::string &key,bool *data) const
 	*data = vdata->GetBool();
 	return true;
 }
-std::string ds::Block::GetString(const std::string &key) const
+bool ds::Block::HasValue(const std::string &key) const {return GetValue(key) != nullptr;}
+std::string ds::Block::GetString(const std::string &key,const std::string &default) const
 {
 	std::string value;
 	if(!GetString(key,&value))
-		value = "";
+		value = default;
 	return value;
 }
-int ds::Block::GetInt(const std::string &key) const
+int ds::Block::GetInt(const std::string &key,int default) const
 {
 	int value;
 	if(!GetInt(key,&value))
-		value = 0;
+		value = default;
 	return value;
 }
-float ds::Block::GetFloat(const std::string &key) const
+float ds::Block::GetFloat(const std::string &key,float default) const
 {
 	float value;
 	if(!GetFloat(key,&value))
-		value = 0.f;
+		value = default;
 	return value;
 }
-bool ds::Block::GetBool(const std::string &key) const
+bool ds::Block::GetBool(const std::string &key,bool default) const
 {
 	bool value;
 	if(!GetBool(key,&value))
-		value = false;
+		value = default;
 	return value;
 }
 
