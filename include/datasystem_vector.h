@@ -27,6 +27,23 @@ namespace ds
 	private:
 		Vector3 m_value;
 	};
+	class DLLDATASYSTEM Vector4
+		: public Value
+	{
+	public:
+		Vector4(ds::Settings &dataSettings,const std::string &value);
+		Vector4(ds::Settings &dataSettings,const ::Vector4 &value);
+		virtual Vector4 *Copy() override;
+		const ::Vector4 &GetValue() const;
+
+		virtual std::string GetString() const override;
+		virtual std::string GetTypeString() const override;
+		virtual int GetInt() const override;
+		virtual float GetFloat() const override;
+		virtual bool GetBool() const override;
+	private:
+		::Vector4 m_value;
+	};
 };
 
 #endif
