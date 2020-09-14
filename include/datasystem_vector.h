@@ -24,6 +24,9 @@ namespace ds
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
+		virtual ::Color GetColor() const override;
+		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector4 GetVector4() const override;
 	private:
 		Vector3 m_value;
 	};
@@ -41,6 +44,9 @@ namespace ds
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
+		virtual ::Color GetColor() const override;
+		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector4 GetVector4() const override;
 	private:
 		::Vector4 m_value;
 	};

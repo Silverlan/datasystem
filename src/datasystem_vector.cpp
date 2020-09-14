@@ -24,6 +24,9 @@ std::string ds::Vector::GetString() const
 int ds::Vector::GetInt() const {return 0;}
 float ds::Vector::GetFloat() const {return 0.f;}
 bool ds::Vector::GetBool() const {return false;}
+::Color ds::Vector::GetColor() const {return Color{m_value};}
+::Vector3 ds::Vector::GetVector() const {return m_value;}
+::Vector4 ds::Vector::GetVector4() const {return ::Vector4{m_value,0.f};}
 
 REGISTER_DATA_TYPE(ds::Vector,vector)
 
@@ -49,5 +52,8 @@ std::string ds::Vector4::GetString() const
 int ds::Vector4::GetInt() const {return 0;}
 float ds::Vector4::GetFloat() const {return 0.f;}
 bool ds::Vector4::GetBool() const {return false;}
+::Color ds::Vector4::GetColor() const {return Color{m_value};}
+::Vector3 ds::Vector4::GetVector() const {return m_value;}
+::Vector4 ds::Vector4::GetVector4() const {return m_value;}
 
 REGISTER_DATA_TYPE(ds::Vector4,vector4)

@@ -10,6 +10,8 @@
 #include <typeinfo>
 #include <memory>
 #include <functional>
+#include <mathutil/color.h>
+#include <mathutil/uvec.h>
 
 #ifdef DATASYSTEM_DLL
 	#ifdef __linux__
@@ -98,20 +100,36 @@ namespace ds
 		int GetInt(const std::string &key,int default=0) const;
 		float GetFloat(const std::string &key,float default=0.f) const;
 		bool GetBool(const std::string &key,bool default=false) const;
+		::Color GetColor(const std::string &key,const ::Color &default=::Color::White) const;
+		::Vector3 GetVector3(const std::string &key,const ::Vector3 &default={}) const;
+		::Vector4 GetVector4(const std::string &key,const ::Vector4 &default={}) const;
 
 		bool GetString(const std::string &key,std::string *data) const;
 		bool GetInt(const std::string &key,int *data) const;
 		bool GetFloat(const std::string &key,float *data) const;
 		bool GetBool(const std::string &key,bool *data) const;
+		bool GetColor(const std::string &key,::Color *data) const;
+		bool GetVector3(const std::string &key,::Vector3 *data) const;
+		bool GetVector4(const std::string &key,::Vector4 *data) const;
 
 		bool IsString(const std::string &key) const;
 		bool IsInt(const std::string &key) const;
 		bool IsFloat(const std::string &key) const;
 		bool IsBool(const std::string &key) const;
+		bool IsColor(const std::string &key) const;
+		bool IsVector3(const std::string &key) const;
+		bool IsVector4(const std::string &key) const;
+
 		bool GetRawString(const std::string &key,std::string *v) const;
 		bool GetRawInt(const std::string &key,int *v) const;
 		bool GetRawFloat(const std::string &key,float *v) const;
 		bool GetRawBool(const std::string &key,bool *v) const;
+		bool GetRawColor(const std::string &key,::Color *v) const;
+		bool GetRawVector3(const std::string &key,::Vector3 *v) const;
+		bool GetRawVector4(const std::string &key,::Vector4 *v) const;
+
+		template<typename T>
+			bool GetType(const std::string &key,T &outValue) const;
 
 		template<class TType>
 			bool IsType(const std::string &key) const;
@@ -147,6 +165,9 @@ namespace ds
 		virtual int GetInt() const=0;
 		virtual float GetFloat() const=0;
 		virtual bool GetBool() const=0;
+		virtual ::Color GetColor() const=0;
+		virtual ::Vector3 GetVector() const=0;
+		virtual ::Vector4 GetVector4() const=0;
 	};
 
 	class DLLDATASYSTEM System
@@ -192,6 +213,9 @@ namespace ds
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
+		virtual ::Color GetColor() const override;
+		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector4 GetVector4() const override;
 	private:
 		std::string m_value;
 	};
@@ -210,6 +234,9 @@ namespace ds
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
+		virtual ::Color GetColor() const override;
+		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector4 GetVector4() const override;
 	private:
 		int32_t m_value;
 	};
@@ -228,6 +255,9 @@ namespace ds
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
+		virtual ::Color GetColor() const override;
+		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector4 GetVector4() const override;
 	private:
 		float m_value;
 	};
@@ -246,6 +276,9 @@ namespace ds
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
+		virtual ::Color GetColor() const override;
+		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector4 GetVector4() const override;
 	private:
 		bool m_value;
 	};

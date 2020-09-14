@@ -23,5 +23,8 @@ std::string ds::Color::GetString() const
 int ds::Color::GetInt() const {return 0;}
 float ds::Color::GetFloat() const {return 0.f;}
 bool ds::Color::GetBool() const {return false;}
+::Color ds::Color::GetColor() const {return m_value;}
+::Vector3 ds::Color::GetVector() const {return m_value.ToVector3();}
+::Vector4 ds::Color::GetVector4() const {return m_value.ToVector4();}
 
 REGISTER_DATA_TYPE(ds::Color,color)

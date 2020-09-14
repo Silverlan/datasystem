@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "datasystem.h"
+#include "datasystem_color.h"
+#include "datasystem_vector.h"
 #include <fsys/filesystem.h>
 #include <sharedutils/util_string.h>
 #include <sharedutils/util.h>
@@ -267,6 +269,33 @@ bool ds::Block::GetBool(const std::string &key,bool *data) const
 	*data = vdata->GetBool();
 	return true;
 }
+bool ds::Block::GetColor(const std::string &key,::Color *data) const
+{
+	auto &val = GetValue(key);
+	if(val == nullptr || val->IsBlock())
+		return false;
+	auto *vdata = static_cast<ds::Value*>(val.get());
+	*data = vdata->GetColor();
+	return true;
+}
+bool ds::Block::GetVector3(const std::string &key,::Vector3 *data) const
+{
+	auto &val = GetValue(key);
+	if(val == nullptr || val->IsBlock())
+		return false;
+	auto *vdata = static_cast<ds::Value*>(val.get());
+	*data = vdata->GetVector();
+	return true;
+}
+bool ds::Block::GetVector4(const std::string &key,::Vector4 *data) const
+{
+	auto &val = GetValue(key);
+	if(val == nullptr || val->IsBlock())
+		return false;
+	auto *vdata = static_cast<ds::Value*>(val.get());
+	*data = vdata->GetVector4();
+	return true;
+}
 bool ds::Block::HasValue(const std::string &key) const {return GetValue(key) != nullptr;}
 std::string ds::Block::GetString(const std::string &key,const std::string &default) const
 {
@@ -296,11 +325,35 @@ bool ds::Block::GetBool(const std::string &key,bool default) const
 		value = default;
 	return value;
 }
+::Color ds::Block::GetColor(const std::string &key,const ::Color &default) const
+{
+	::Color value;
+	if(!GetColor(key,&value))
+		value = default;
+	return value;
+}
+::Vector3 ds::Block::GetVector3(const std::string &key,const ::Vector3 &default) const
+{
+	::Vector3 value;
+	if(!GetVector3(key,&value))
+		value = default;
+	return value;
+}
+::Vector4 ds::Block::GetVector4(const std::string &key,const ::Vector4 &default) const
+{
+	::Vector4 value;
+	if(!GetVector4(key,&value))
+		value = default;
+	return value;
+}
 
 bool ds::Block::IsString(const std::string &key) const {return IsType<ds::String>(key);}
 bool ds::Block::IsInt(const std::string &key) const {return IsType<ds::Int>(key);}
 bool ds::Block::IsFloat(const std::string &key) const {return IsType<ds::Float>(key);}
 bool ds::Block::IsBool(const std::string &key) const {return IsType<ds::Bool>(key);}
+bool ds::Block::IsColor(const std::string &key) const {return IsType<ds::Color>(key);}
+bool ds::Block::IsVector3(const std::string &key) const {return IsType<ds::Vector>(key);}
+bool ds::Block::IsVector4(const std::string &key) const {return IsType<ds::Vector4>(key);}
 bool ds::Block::GetRawString(const std::string &key,std::string *v) const
 {
 	auto data = GetRawType<ds::String>(key);
@@ -331,6 +384,30 @@ bool ds::Block::GetRawBool(const std::string &key,bool *v) const
 	if(data == nullptr)
 		return false;
 	*v = data->GetBool();
+	return true;
+}
+bool ds::Block::GetRawColor(const std::string &key,::Color *v) const
+{
+	auto data = GetRawType<ds::Color>(key);
+	if(data == nullptr)
+		return false;
+	*v = data->GetColor();
+	return true;
+}
+bool ds::Block::GetRawVector3(const std::string &key,::Vector3 *v) const
+{
+	auto data = GetRawType<ds::Vector>(key);
+	if(data == nullptr)
+		return false;
+	*v = data->GetVector();
+	return true;
+}
+bool ds::Block::GetRawVector4(const std::string &key,::Vector4 *v) const
+{
+	auto data = GetRawType<ds::Vector4>(key);
+	if(data == nullptr)
+		return false;
+	*v = data->GetVector4();
 	return true;
 }
 
@@ -510,7 +587,7 @@ std::shared_ptr<ds::Block> ds::System::ReadData(VFilePtr f,const std::unordered_
 }
 std::shared_ptr<ds::Block> ds::System::LoadData(const char *path,const std::unordered_map<std::string,std::string> &enums)
 {
-	auto f = FileManager::OpenFile(path,"rb");
+	auto f = FileManager::OpenFile(path,"r");
 	if(f == nullptr)
 		return nullptr;
 	return ReadData(f,enums);
@@ -528,6 +605,9 @@ std::string ds::String::GetString() const {return m_value;}
 int ds::String::GetInt() const {return util::to_int(m_value);}
 float ds::String::GetFloat() const {return util::to_float(m_value);}
 bool ds::String::GetBool() const {return util::to_boolean(m_value);}
+::Color ds::String::GetColor() const {return ::Color{m_value};}
+::Vector3 ds::String::GetVector() const {return uvec::create(m_value);}
+::Vector4 ds::String::GetVector4() const {return uvec::create_v4(m_value);}
 REGISTER_DATA_TYPE(ds::String,string)
 
 ////////////////////////
@@ -548,6 +628,9 @@ std::string ds::Int::GetString() const {return std::to_string(m_value);}
 int ds::Int::GetInt() const {return m_value;}
 float ds::Int::GetFloat() const {return static_cast<float>(m_value);}
 bool ds::Int::GetBool() const {return (m_value != 0) ? true : false;}
+::Color ds::Int::GetColor() const {return ::Color{static_cast<int16_t>(m_value),static_cast<int16_t>(m_value),static_cast<int16_t>(m_value),255};}
+::Vector3 ds::Int::GetVector() const {return ::Vector3{m_value,m_value,m_value};}
+::Vector4 ds::Int::GetVector4() const {return ::Vector4{m_value,m_value,m_value,m_value};}
 REGISTER_DATA_TYPE(ds::Int,int)
 
 ////////////////////////
@@ -568,6 +651,13 @@ std::string ds::Float::GetString() const {return std::to_string(m_value);}
 int ds::Float::GetInt() const {return m_value;}
 float ds::Float::GetFloat() const {return static_cast<float>(m_value);}
 bool ds::Float::GetBool() const {return (m_value != 0) ? true : false;}
+::Color ds::Float::GetColor() const
+{
+	auto v = static_cast<int16_t>(m_value *255.f);
+	return ::Color{v,v,v,255};
+}
+::Vector3 ds::Float::GetVector() const {return ::Vector3{m_value,m_value,m_value};}
+::Vector4 ds::Float::GetVector4() const {return ::Vector4{m_value,m_value,m_value,m_value};}
 REGISTER_DATA_TYPE(ds::Float,float)
 
 ////////////////////////
@@ -585,4 +675,7 @@ std::string ds::Bool::GetString() const {return std::to_string(m_value);}
 int ds::Bool::GetInt() const {return m_value;}
 float ds::Bool::GetFloat() const {return static_cast<float>(m_value);}
 bool ds::Bool::GetBool() const {return (m_value != 0) ? true : false;}
+::Color ds::Bool::GetColor() const {return ::Color{m_value ? 255 : 0,m_value ? 255 : 0,m_value ? 255 : 0,255};}
+::Vector3 ds::Bool::GetVector() const {return ::Vector3{m_value,m_value,m_value};}
+::Vector4 ds::Bool::GetVector4() const {return ::Vector4{m_value,m_value,m_value,m_value};}
 REGISTER_DATA_TYPE(ds::Bool,bool)
