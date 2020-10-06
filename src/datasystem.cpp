@@ -167,7 +167,58 @@ ds::Block *ds::Block::Copy()
 	for(auto it=m_data.begin();it!=m_data.end();it++)
 		cpy->AddData(it->first,std::shared_ptr<ds::Base>(it->second->Copy()));
 	return cpy;
-
+}
+std::string ds::Block::ToString(const std::optional<std::string> &rootIdentifier,uint8_t tabDepth) const
+{
+	std::stringstream ss;
+	if(rootIdentifier.has_value())
+	{
+		ss<<"\""<<*rootIdentifier<<"\"\n{\n";
+		++tabDepth;
+	}
+	
+	std::string t (tabDepth,'\t');
+	std::function<void(const ds::Block&,const std::string&)> fIterateDataBlock = nullptr;
+	fIterateDataBlock = [&ss,&fIterateDataBlock](const ds::Block &block,const std::string &t) {
+		auto *data = block.GetData();
+		if(data == nullptr)
+			return;
+		for(auto &pair : *data)
+		{
+			if(pair.second->IsBlock())
+			{
+				auto &block = static_cast<ds::Block&>(*pair.second);
+				ss<<t<<"\""<<pair.first<<"\"\n"<<t<<"{\n";
+				fIterateDataBlock(block,t +'\t');
+				ss<<t<<"}\n";
+				continue;
+			}
+			if(pair.second->IsContainer())
+			{
+				auto &container = static_cast<ds::Container&>(*pair.second);
+				ss<<t<<"\""<<pair.first<<"\"\n"<<t<<"{\n";
+				for(auto &block : container.GetBlocks())
+				{
+					if(block->IsContainer() || block->IsBlock())
+						throw std::invalid_argument{"Data set block may only contain values!"};
+					auto *dsValue = dynamic_cast<ds::Value*>(pair.second.get());
+					if(dsValue == nullptr)
+						throw std::invalid_argument{"Unexpected data set type!"};
+					ss<<t<<"\t\""<<dsValue->GetString()<<"\"\n";
+				}
+				ss<<t<<"}\n";
+				continue;
+			}
+			auto *dsValue = dynamic_cast<ds::Value*>(pair.second.get());
+			if(dsValue == nullptr)
+				throw std::invalid_argument{"Unexpected data set type!"};
+			ss<<t<<"$"<<dsValue->GetTypeString()<<" "<<pair.first<<" \""<<dsValue->GetString()<<"\"\n";
+		}
+	};
+	fIterateDataBlock(*this,t);
+	if(rootIdentifier.has_value())
+		ss<<"}\n";
+	return ss.str();
 }
 bool ds::Block::IsBlock() const {return true;}
 const std::unordered_map<std::string,std::shared_ptr<ds::Base>> *ds::Block::GetData() const {return &m_data;}
@@ -599,6 +650,7 @@ ds::String::String(Settings &dataSettings,const std::string &value)
 	: ds::Value(dataSettings),m_value(value)
 {}
 ds::Value *ds::String::Copy() {return new ds::String(*m_dataSettings,GetValue());}
+
 const std::string &ds::String::GetValue() const {return m_value;}
 
 std::string ds::String::GetString() const {return m_value;}

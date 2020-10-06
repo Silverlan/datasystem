@@ -10,6 +10,7 @@
 #include <typeinfo>
 #include <memory>
 #include <functional>
+#include <optional>
 #include <mathutil/color.h>
 #include <mathutil/uvec.h>
 
@@ -89,6 +90,7 @@ namespace ds
 		bool IsEmpty() const;
 		// Creates a copy of all data contained in this block
 		Block *Copy();
+		std::string ToString(const std::optional<std::string> &rootIdentifier,uint8_t tabDepth=0) const;
 		virtual void AddData(const std::string &name,const std::shared_ptr<Base> &data);
 		std::shared_ptr<ds::Base> AddValue(const std::string &type,const std::string &name,const std::string &value);
 		std::shared_ptr<Block> AddBlock(const std::string &name);
