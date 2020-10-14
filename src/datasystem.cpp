@@ -212,7 +212,7 @@ std::string ds::Block::ToString(const std::optional<std::string> &rootIdentifier
 			auto *dsValue = dynamic_cast<ds::Value*>(pair.second.get());
 			if(dsValue == nullptr)
 				throw std::invalid_argument{"Unexpected data set type!"};
-			ss<<t<<"$"<<dsValue->GetTypeString()<<" "<<pair.first<<" \""<<dsValue->GetString()<<"\"\n";
+			ss<<t<<"$"<<dsValue->GetTypeString()<<" \""<<pair.first<<"\" \""<<dsValue->GetString()<<"\"\n";
 		}
 	};
 	fIterateDataBlock(*this,t);
@@ -225,7 +225,7 @@ const std::unordered_map<std::string,std::shared_ptr<ds::Base>> *ds::Block::GetD
 void ds::Block::AddData(const std::string &name,const std::shared_ptr<Base> &data)
 {
 	auto lname = name;
-	ustring::to_lower(lname);
+	//ustring::to_lower(lname);
 	auto it = m_data.find(lname);
 	if(it == m_data.end())
 	{
@@ -533,7 +533,7 @@ static bool read_block_data(ds::Block &block,const std::unordered_map<std::strin
 				return false;
 			auto name = ReadValue(c,f);
 			ustring::remove_quotes(name);
-			ustring::to_lower(name);
+			//ustring::to_lower(name);
 			//f->Seek(f->Tell() +1);
 			c = f->FindFirstNotOf(ustring::WHITESPACE);
 			if(c == -1)
