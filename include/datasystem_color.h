@@ -26,6 +26,7 @@ namespace ds
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
 		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	private:
 		::Color m_value;

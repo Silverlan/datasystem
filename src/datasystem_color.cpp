@@ -25,6 +25,11 @@ float ds::Color::GetFloat() const {return 0.f;}
 bool ds::Color::GetBool() const {return false;}
 ::Color ds::Color::GetColor() const {return m_value;}
 ::Vector3 ds::Color::GetVector() const {return m_value.ToVector3();}
+::Vector2 ds::Color::GetVector2() const
+{
+	auto v = m_value.ToVector3();
+	return ::Vector2{v.x,v.y};
+}
 ::Vector4 ds::Color::GetVector4() const {return m_value.ToVector4();}
 
 REGISTER_DATA_TYPE(ds::Color,color)

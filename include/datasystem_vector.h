@@ -26,6 +26,7 @@ namespace ds
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
 		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	private:
 		Vector3 m_value;
@@ -46,9 +47,31 @@ namespace ds
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
 		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	private:
 		::Vector4 m_value;
+	};
+	class DLLDATASYSTEM Vector2
+		: public Value
+	{
+	public:
+		Vector2(ds::Settings &dataSettings,const std::string &value);
+		Vector2(ds::Settings &dataSettings,const ::Vector2 &value);
+		virtual Vector2 *Copy() override;
+		const ::Vector2 &GetValue() const;
+
+		virtual std::string GetString() const override;
+		virtual std::string GetTypeString() const override;
+		virtual int GetInt() const override;
+		virtual float GetFloat() const override;
+		virtual bool GetBool() const override;
+		virtual ::Color GetColor() const override;
+		virtual ::Vector2 GetVector2() const override;
+		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector4 GetVector4() const override;
+	private:
+		::Vector2 m_value;
 	};
 };
 

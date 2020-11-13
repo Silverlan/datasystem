@@ -338,6 +338,15 @@ bool ds::Block::GetVector3(const std::string &key,::Vector3 *data) const
 	*data = vdata->GetVector();
 	return true;
 }
+bool ds::Block::GetVector2(const std::string &key,::Vector2 *data) const
+{
+	auto &val = GetValue(key);
+	if(val == nullptr || val->IsBlock())
+		return false;
+	auto *vdata = static_cast<ds::Value*>(val.get());
+	*data = vdata->GetVector2();
+	return true;
+}
 bool ds::Block::GetVector4(const std::string &key,::Vector4 *data) const
 {
 	auto &val = GetValue(key);
@@ -390,6 +399,13 @@ bool ds::Block::GetBool(const std::string &key,bool default) const
 		value = default;
 	return value;
 }
+::Vector2 ds::Block::GetVector2(const std::string &key,const ::Vector2 &default) const
+{
+	::Vector2 value;
+	if(!GetVector2(key,&value))
+		value = default;
+	return value;
+}
 ::Vector4 ds::Block::GetVector4(const std::string &key,const ::Vector4 &default) const
 {
 	::Vector4 value;
@@ -403,6 +419,7 @@ bool ds::Block::IsInt(const std::string &key) const {return IsType<ds::Int>(key)
 bool ds::Block::IsFloat(const std::string &key) const {return IsType<ds::Float>(key);}
 bool ds::Block::IsBool(const std::string &key) const {return IsType<ds::Bool>(key);}
 bool ds::Block::IsColor(const std::string &key) const {return IsType<ds::Color>(key);}
+bool ds::Block::IsVector2(const std::string &key) const {return IsType<ds::Vector2>(key);}
 bool ds::Block::IsVector3(const std::string &key) const {return IsType<ds::Vector>(key);}
 bool ds::Block::IsVector4(const std::string &key) const {return IsType<ds::Vector4>(key);}
 bool ds::Block::GetRawString(const std::string &key,std::string *v) const
@@ -451,6 +468,14 @@ bool ds::Block::GetRawVector3(const std::string &key,::Vector3 *v) const
 	if(data == nullptr)
 		return false;
 	*v = data->GetVector();
+	return true;
+}
+bool ds::Block::GetRawVector2(const std::string &key,::Vector2 *v) const
+{
+	auto data = GetRawType<ds::Vector2>(key);
+	if(data == nullptr)
+		return false;
+	*v = data->GetVector2();
 	return true;
 }
 bool ds::Block::GetRawVector4(const std::string &key,::Vector4 *v) const
@@ -659,6 +684,11 @@ float ds::String::GetFloat() const {return util::to_float(m_value);}
 bool ds::String::GetBool() const {return util::to_boolean(m_value);}
 ::Color ds::String::GetColor() const {return ::Color{m_value};}
 ::Vector3 ds::String::GetVector() const {return uvec::create(m_value);}
+::Vector2 ds::String::GetVector2() const
+{
+	auto v = uvec::create(m_value);
+	return ::Vector2{v.x,v.y};
+}
 ::Vector4 ds::String::GetVector4() const {return uvec::create_v4(m_value);}
 REGISTER_DATA_TYPE(ds::String,string)
 
@@ -682,6 +712,7 @@ float ds::Int::GetFloat() const {return static_cast<float>(m_value);}
 bool ds::Int::GetBool() const {return (m_value != 0) ? true : false;}
 ::Color ds::Int::GetColor() const {return ::Color{static_cast<int16_t>(m_value),static_cast<int16_t>(m_value),static_cast<int16_t>(m_value),255};}
 ::Vector3 ds::Int::GetVector() const {return ::Vector3{m_value,m_value,m_value};}
+::Vector2 ds::Int::GetVector2() const {return ::Vector2{m_value,m_value};}
 ::Vector4 ds::Int::GetVector4() const {return ::Vector4{m_value,m_value,m_value,m_value};}
 REGISTER_DATA_TYPE(ds::Int,int)
 
@@ -709,6 +740,7 @@ bool ds::Float::GetBool() const {return (m_value != 0) ? true : false;}
 	return ::Color{v,v,v,255};
 }
 ::Vector3 ds::Float::GetVector() const {return ::Vector3{m_value,m_value,m_value};}
+::Vector2 ds::Float::GetVector2() const {return ::Vector2{m_value,m_value};}
 ::Vector4 ds::Float::GetVector4() const {return ::Vector4{m_value,m_value,m_value,m_value};}
 REGISTER_DATA_TYPE(ds::Float,float)
 
@@ -729,5 +761,6 @@ float ds::Bool::GetFloat() const {return static_cast<float>(m_value);}
 bool ds::Bool::GetBool() const {return (m_value != 0) ? true : false;}
 ::Color ds::Bool::GetColor() const {return ::Color{m_value ? 255 : 0,m_value ? 255 : 0,m_value ? 255 : 0,255};}
 ::Vector3 ds::Bool::GetVector() const {return ::Vector3{m_value,m_value,m_value};}
+::Vector2 ds::Bool::GetVector2() const {return ::Vector2{m_value,m_value};}
 ::Vector4 ds::Bool::GetVector4() const {return ::Vector4{m_value,m_value,m_value,m_value};}
 REGISTER_DATA_TYPE(ds::Bool,bool)

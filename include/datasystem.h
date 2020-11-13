@@ -103,6 +103,7 @@ namespace ds
 		float GetFloat(const std::string &key,float default=0.f) const;
 		bool GetBool(const std::string &key,bool default=false) const;
 		::Color GetColor(const std::string &key,const ::Color &default=::Color::White) const;
+		::Vector2 GetVector2(const std::string &key,const ::Vector2 &default={}) const;
 		::Vector3 GetVector3(const std::string &key,const ::Vector3 &default={}) const;
 		::Vector4 GetVector4(const std::string &key,const ::Vector4 &default={}) const;
 
@@ -111,6 +112,7 @@ namespace ds
 		bool GetFloat(const std::string &key,float *data) const;
 		bool GetBool(const std::string &key,bool *data) const;
 		bool GetColor(const std::string &key,::Color *data) const;
+		bool GetVector2(const std::string &key,::Vector2 *data) const;
 		bool GetVector3(const std::string &key,::Vector3 *data) const;
 		bool GetVector4(const std::string &key,::Vector4 *data) const;
 
@@ -119,6 +121,7 @@ namespace ds
 		bool IsFloat(const std::string &key) const;
 		bool IsBool(const std::string &key) const;
 		bool IsColor(const std::string &key) const;
+		bool IsVector2(const std::string &key) const;
 		bool IsVector3(const std::string &key) const;
 		bool IsVector4(const std::string &key) const;
 
@@ -127,6 +130,7 @@ namespace ds
 		bool GetRawFloat(const std::string &key,float *v) const;
 		bool GetRawBool(const std::string &key,bool *v) const;
 		bool GetRawColor(const std::string &key,::Color *v) const;
+		bool GetRawVector2(const std::string &key,::Vector2 *v) const;
 		bool GetRawVector3(const std::string &key,::Vector3 *v) const;
 		bool GetRawVector4(const std::string &key,::Vector4 *v) const;
 
@@ -169,6 +173,7 @@ namespace ds
 		virtual bool GetBool() const=0;
 		virtual ::Color GetColor() const=0;
 		virtual ::Vector3 GetVector() const=0;
+		virtual ::Vector2 GetVector2() const=0;
 		virtual ::Vector4 GetVector4() const=0;
 	};
 
@@ -217,6 +222,7 @@ namespace ds
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
 		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	private:
 		std::string m_value;
@@ -238,6 +244,7 @@ namespace ds
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
 		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	private:
 		int32_t m_value;
@@ -259,6 +266,7 @@ namespace ds
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
 		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	private:
 		float m_value;
@@ -280,6 +288,7 @@ namespace ds
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
 		virtual ::Vector3 GetVector() const override;
+		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	private:
 		bool m_value;
