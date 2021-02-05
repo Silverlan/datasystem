@@ -545,7 +545,6 @@ static bool read_block_data(ds::Block &block,const std::unordered_map<std::strin
 		return false;
 	}
 	auto ident = ReadValue(c,f);
-	ustring::to_lower(ident);
 	switch(ident[0])
 	{
 		case '$':
@@ -564,6 +563,7 @@ static bool read_block_data(ds::Block &block,const std::unordered_map<std::strin
 			if(c == -1)
 				return false;
 			ident = ident.substr(1);
+			ustring::to_lower(ident);
 			if(c != '{')
 			{
 				auto value = ReadValue(c,f);
