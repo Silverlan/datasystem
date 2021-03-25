@@ -150,9 +150,9 @@ namespace ds
 		friend Block;
 		virtual ~Container() override;
 	protected:
-		Container(Settings &dataSettings);
 		std::vector<std::shared_ptr<Block>> m_dataBlocks;
 	public:
+		Container(Settings &dataSettings);
 		virtual bool IsContainer() const override;
 		void AddData(const std::shared_ptr<Block> &data);
 		std::shared_ptr<Block> GetBlock(unsigned int id=0);
