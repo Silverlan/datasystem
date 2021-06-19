@@ -357,60 +357,60 @@ bool ds::Block::GetVector4(const std::string &key,::Vector4 *data) const
 	return true;
 }
 bool ds::Block::HasValue(const std::string &key) const {return GetValue(key) != nullptr;}
-std::string ds::Block::GetString(const std::string &key,const std::string &default) const
+std::string ds::Block::GetString(const std::string &key,const std::string &def) const
 {
 	std::string value;
 	if(!GetString(key,&value))
-		value = default;
+		value = def;
 	return value;
 }
-int ds::Block::GetInt(const std::string &key,int default) const
+int ds::Block::GetInt(const std::string &key,int def) const
 {
 	int value;
 	if(!GetInt(key,&value))
-		value = default;
+		value = def;
 	return value;
 }
-float ds::Block::GetFloat(const std::string &key,float default) const
+float ds::Block::GetFloat(const std::string &key,float def) const
 {
 	float value;
 	if(!GetFloat(key,&value))
-		value = default;
+		value = def;
 	return value;
 }
-bool ds::Block::GetBool(const std::string &key,bool default) const
+bool ds::Block::GetBool(const std::string &key,bool def) const
 {
 	bool value;
 	if(!GetBool(key,&value))
-		value = default;
+		value = def;
 	return value;
 }
-::Color ds::Block::GetColor(const std::string &key,const ::Color &default) const
+::Color ds::Block::GetColor(const std::string &key,const ::Color &def) const
 {
 	::Color value;
 	if(!GetColor(key,&value))
-		value = default;
+		value = def;
 	return value;
 }
-::Vector3 ds::Block::GetVector3(const std::string &key,const ::Vector3 &default) const
+::Vector3 ds::Block::GetVector3(const std::string &key,const ::Vector3 &def) const
 {
 	::Vector3 value;
 	if(!GetVector3(key,&value))
-		value = default;
+		value = def;
 	return value;
 }
-::Vector2 ds::Block::GetVector2(const std::string &key,const ::Vector2 &default) const
+::Vector2 ds::Block::GetVector2(const std::string &key,const ::Vector2 &def) const
 {
 	::Vector2 value;
 	if(!GetVector2(key,&value))
-		value = default;
+		value = def;
 	return value;
 }
-::Vector4 ds::Block::GetVector4(const std::string &key,const ::Vector4 &default) const
+::Vector4 ds::Block::GetVector4(const std::string &key,const ::Vector4 &def) const
 {
 	::Vector4 value;
 	if(!GetVector4(key,&value))
-		value = default;
+		value = def;
 	return value;
 }
 

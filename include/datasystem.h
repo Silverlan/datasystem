@@ -98,14 +98,14 @@ namespace ds
 		std::shared_ptr<Value> GetDataValue(const std::string &key) const;
 		std::shared_ptr<Block> GetBlock(const std::string &name,unsigned int id=0) override;
 		bool HasValue(const std::string &key) const;
-		std::string GetString(const std::string &key,const std::string &default="") const;
-		int GetInt(const std::string &key,int default=0) const;
-		float GetFloat(const std::string &key,float default=0.f) const;
-		bool GetBool(const std::string &key,bool default=false) const;
-		::Color GetColor(const std::string &key,const ::Color &default=::Color::White) const;
-		::Vector2 GetVector2(const std::string &key,const ::Vector2 &default={}) const;
-		::Vector3 GetVector3(const std::string &key,const ::Vector3 &default={}) const;
-		::Vector4 GetVector4(const std::string &key,const ::Vector4 &default={}) const;
+		std::string GetString(const std::string &key,const std::string &def="") const;
+		int GetInt(const std::string &key,int def=0) const;
+		float GetFloat(const std::string &key,float def=0.f) const;
+		bool GetBool(const std::string &key,bool def=false) const;
+		::Color GetColor(const std::string &key,const ::Color &def=::Color::White) const;
+		::Vector2 GetVector2(const std::string &key,const ::Vector2 &def={}) const;
+		::Vector3 GetVector3(const std::string &key,const ::Vector3 &def={}) const;
+		::Vector4 GetVector4(const std::string &key,const ::Vector4 &def={}) const;
 
 		bool GetString(const std::string &key,std::string *data) const;
 		bool GetInt(const std::string &key,int *data) const;
