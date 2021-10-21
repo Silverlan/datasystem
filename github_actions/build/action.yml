@@ -39,6 +39,7 @@ runs:
         repo_name: 'exprtk'
         repo_branch: 'master'
         cmake_var: 'DEPENDENCY_EXPRTK_INCLUDE'
+        include_dir: '.'
         
     - name: Download common external libs
       uses: Silverlan/common_actions/get_common_external_libs@main
