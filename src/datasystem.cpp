@@ -8,10 +8,12 @@
 #include <fsys/filesystem.h>
 #include <sharedutils/util_string.h>
 #include <sharedutils/util.h>
+#include <sharedutils/util_ifile.hpp>
 #include <algorithm>
 #include <sstream>
 #include <mathutil/color.h>
 #include <exprtk.hpp>
+#include <fsys/ifile.hpp>
 
 static ds::ValueTypeMap *g_DataValueFactoryMap = nullptr;
 
@@ -516,32 +518,141 @@ ds::Value::Value(Settings &dataSettings)
 
 ////////////////////////
 
-static std::string ReadValue(unsigned long long c,VFilePtr f)
+#define IsEOF(c) (c == EOF || f.Eof())
+static unsigned long long FindFirstOf(ufile::IFile &f,const char *s)
+{
+	if(f.Eof())
+		return static_cast<unsigned long long>(EOF);
+	unsigned char c;
+	int cur = 0;
+	do
+	{
+		c = static_cast<unsigned char>(f.ReadChar());
+		if(!IsEOF(c))
+		{
+			while(s[cur] != '\0')
+			{
+				if(c == s[cur])
+					return c;
+				cur++;
+			}
+		}
+	}
+	while(!IsEOF(c));
+	return static_cast<unsigned long long>(EOF);
+}
+static unsigned long long FindFirstNotOf(ufile::IFile &f,const char *s)
+{
+	if(f.Eof())
+		return static_cast<unsigned long long>(EOF);
+	unsigned char c;
+	int cur = 0;
+	do
+	{
+		c = static_cast<unsigned char>(f.ReadChar());
+		if(!IsEOF(c))
+		{
+			bool ret = true;
+			while(s[cur] != '\0')
+			{
+				if(c == s[cur])
+				{
+					ret = false;
+					break;
+				}
+				cur++;
+			}
+			if(ret)
+				return c;
+			cur = 0;
+		}
+	}
+	while(!IsEOF(c));
+	return static_cast<unsigned long long>(EOF);
+}
+static std::string ReadUntil(ufile::IFile &f,const char *s)
+{
+	std::string ret = "";
+	if(f.Eof())
+		return ret;
+	unsigned char c;
+	int cur = 0;
+	do
+	{
+		c = static_cast<unsigned char>(f.ReadChar());
+		if(!IsEOF(c))
+		{
+			while(s[cur] != '\0')
+			{
+				if(c == s[cur])
+				{
+					f.Seek(f.Tell() -1);
+					return ret;
+				}
+				cur++;
+			}
+			cur = 0;
+			ret += char(c);
+		}
+	}
+	while(!IsEOF(c));
+	return ret;
+}
+
+static unsigned long long FindFirstOf(ufile::IFile &f,char c)
+{
+	char s[2] = {
+		c,
+		'\0'
+	};
+	return FindFirstOf(f,s);
+}
+static unsigned long long FindFirstNotOf(ufile::IFile &f,char c)
+{
+	char s[2] = {
+		c,
+		'\0'
+	};
+	return FindFirstNotOf(f,s);
+}
+static std::string ReadUntil(ufile::IFile &f,char c)
+{
+	char s[2] = {
+		c,
+		'\0'
+	};
+	return ReadUntil(f,s);
+}
+static unsigned long long FindFirstOf(ufile::IFile &f,std::string s) {return FindFirstOf(f,s.c_str());}
+static unsigned long long FindFirstNotOf(ufile::IFile &f,std::string s) {return FindFirstNotOf(f,s.c_str());}
+static std::string ReadUntil(ufile::IFile &f,std::string s) {return ReadUntil(f,s.c_str());}
+
+static std::string ReadValue(unsigned long long c,ufile::IFile &f)
 {
 	std::string val;
 	if(c == EOF)
 		return val;
 	if(c == '\"')
 	{
-		auto val = f->ReadUntil('\"');
-		f->Seek(f->Tell() +1);
+		auto val = ReadUntil(f,'\"');
+		f.Seek(f.Tell() +1);
 		return val;
 	}
-	f->Seek(f->Tell() -1);
-	val = f->ReadUntil(ustring::WHITESPACE +"},");
+	f.Seek(f.Tell() -1);
+	val = ReadUntil(f,ustring::WHITESPACE +"},");
 	return val;
 }
 
-static bool read_block_data(ds::Block &block,const std::unordered_map<std::string,std::string> &enums,const std::shared_ptr<ds::Settings> &dataSettings,VFilePtr f,int &listID,std::string blockType="",bool bMainBlock=false)
+static bool read_block_data(ds::Block &block,const std::unordered_map<std::string,std::string> &enums,const std::shared_ptr<ds::Settings> &dataSettings,ufile::IFile &f,int &listID,std::string blockType="",bool bMainBlock=false)
 {
-	if(f->Eof())
+	if(f.Eof())
 		return false;
-	auto c = f->FindFirstNotOf(ustring::WHITESPACE);
+	auto c = FindFirstNotOf(f,ustring::WHITESPACE);
 	if(c == ustring::NOT_FOUND)
 		return false;
 	if(c == '}')
 	{
-		f->Seek(f->Tell() -1);
+		f.Seek(f.Tell() -1);
 		return false;
 	}
 	auto ident = ReadValue(c,f);
@@ -551,15 +662,15 @@ static bool read_block_data(ds::Block &block,const std::unordered_map<std::strin
 		{
 			if(!blockType.empty())
 				return false;
-			f->Seek(f->Tell() +1);
-			c = f->FindFirstNotOf(ustring::WHITESPACE);
+			f.Seek(f.Tell() +1);
+			c = FindFirstNotOf(f,ustring::WHITESPACE);
 			if(c == -1)
 				return false;
 			auto name = ReadValue(c,f);
 			ustring::remove_quotes(name);
 			//ustring::to_lower(name);
-			//f->Seek(f->Tell() +1);
-			c = f->FindFirstNotOf(ustring::WHITESPACE);
+			//f.Seek(f.Tell() +1);
+			c = FindFirstNotOf(f,ustring::WHITESPACE);
 			if(c == -1)
 				return false;
 			ident = ident.substr(1);
@@ -572,19 +683,19 @@ static bool read_block_data(ds::Block &block,const std::unordered_map<std::strin
 				if(it != enums.end())
 					value = it->second;
 				block.AddValue(ident,name,value);
-				//f->Seek(f->Tell() +1);
+				//f.Seek(f.Tell() +1);
 				break;
 			}
 			else
 			{
 				blockType = ident;
 				ident = name;
-				f->Seek(f->Tell() -1);
+				f.Seek(f.Tell() -1);
 			}
 		}
 		default:
 		{
-			auto c = f->FindFirstNotOf(ustring::WHITESPACE);
+			auto c = FindFirstNotOf(f,ustring::WHITESPACE);
 			if(c == ustring::NOT_FOUND)
 				return false;
 			switch(c)
@@ -599,12 +710,12 @@ static bool read_block_data(ds::Block &block,const std::unordered_map<std::strin
 					auto subBase = std::static_pointer_cast<ds::Base>(sub);
 					block.AddData(ident,subBase);
 					listID = 0;
-					f->Seek(f->Tell() +1);
+					f.Seek(f.Tell() +1);
 					break;
 				}
 				case ',':
 				{
-					c = f->FindFirstNotOf(ustring::WHITESPACE);
+					c = FindFirstNotOf(f,ustring::WHITESPACE);
 					if(c == -1)
 						return false;
 				}
@@ -616,7 +727,7 @@ static bool read_block_data(ds::Block &block,const std::unordered_map<std::strin
 					if(it != enums.end())
 						ident = it->second;
 					block.AddValue(blockType,std::to_string(listID),ident);
-					f->Seek(f->Tell() -1);
+					f.Seek(f.Tell() -1);
 					listID++;
 					break;
 				}
@@ -648,14 +759,14 @@ void PrintBlocks(std::string name,DataBase *data,std::string t="\t")
 		PrintBlocks(i->first,i->second,t);
 }*/
 
-std::shared_ptr<ds::Block> ds::System::ReadData(VFilePtr f,const std::unordered_map<std::string,std::string> &enums)
+std::shared_ptr<ds::Block> ds::System::ReadData(ufile::IFile &f,const std::unordered_map<std::string,std::string> &enums)
 {
 	auto dataSettings = ds::create_data_settings(enums);
 
 	auto data = std::make_shared<ds::Block>(*dataSettings);
 	auto listID = 0;
-	f->IgnoreComments("//");
-	f->IgnoreComments("/*","*/");
+	// f.IgnoreComments("//");
+	// f.IgnoreComments("/*","*/");
 
 	if(read_block_data(*data,enums,dataSettings,f,listID,"",true) == false)
 		return nullptr;
@@ -666,7 +777,8 @@ std::shared_ptr<ds::Block> ds::System::LoadData(const char *path,const std::unor
 	auto f = FileManager::OpenFile(path,"r");
 	if(f == nullptr)
 		return nullptr;
-	return ReadData(f,enums);
+	fsys::File fp {f};
+	return ReadData(fp,enums);
 }
 
 ////////////////////////

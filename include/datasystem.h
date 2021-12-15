@@ -34,7 +34,7 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4251)
-class VFilePtrInternal;
+namespace ufile {struct IFile;};
 namespace ds
 {
 	class Settings;
@@ -180,7 +180,7 @@ namespace ds
 	class DLLDATASYSTEM System
 	{
 	public:
-		static std::shared_ptr<Block> ReadData(std::shared_ptr<VFilePtrInternal> f,const std::unordered_map<std::string,std::string> &enums={});
+		static std::shared_ptr<Block> ReadData(ufile::IFile &f,const std::unordered_map<std::string,std::string> &enums={});
 		static std::shared_ptr<Block> LoadData(const char *path,const std::unordered_map<std::string,std::string> &enums={});
 	};
 
