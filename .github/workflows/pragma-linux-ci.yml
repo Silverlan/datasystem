@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          submodules: true
+          submodules: false
 
       - name: Setup
         id: setup
@@ -41,13 +41,34 @@ jobs:
           
       - name: Build
         id: build
-        uses: Silverlan/datasystem/github_actions/build@master
+        uses: Silverlan/wgui/github_actions/build@master
         with:
           repo-directory: '.'
-          
-      - name: Upload binaries
-        uses: Silverlan/common_actions/upload_build_binaries@main
 
-      - name: Handle Error
-        uses: Silverlan/common_actions/action_handle_error@main
-        if: failure()
+      - name: Create Release Files
+        shell: bash
+        run: |
+          mkdir release
+          mkdir release/lib
+          rsync build/${{ matrix.config.build_type }}/libwgui.so release/lib/libwgui.so
+          rsync build/external_libs/iglfw/libiglfw.so release/lib/libiglfw.so
+          rsync build/external_libs/sharedutils/libsharedutils.so release/lib/libsharedutils.so
+          rsync build/external_libs/util_image/libutil_image.so release/lib/libutil_image.so
+          rsync build/external_libs/vfilesystem/libvfilesystem.so release/lib/libvfilesystem.so
+          rsync build/external_libs/mathutil/libmathutil.so release/lib/libmathutil.so
+          rsync build/external_libs/datasystem/libdatasystem.so release/lib/libdatasystem.so
+          rsync build/external_libs/prosper/libprosper.so release/lib/libprosper.so
+          rsync build/external_libs/materialsystem/libmaterialsystem.so release/lib/libmaterialsystem.so
+          rsync build/external_libs/materialsystem/libcmaterialsystem.so release/lib/libcmaterialsystem.so
+          rsync build/third_party_libs/zlib/libz.so release/lib/libz.so
+          rsync build/third_party_libs/glfw/src/libglfw.so release/lib/libglfw.so
+          rsync build/third_party_libs/libpng/libpng16.so release/lib/libpng16.so
+          rsync build/third_party_libs/libpng/libpng.so release/lib/libpng.so
+          rsync build/third_party_libs/VTFLib/src/libVTFLib13.so release/lib/libVTFLib13.so
+          rsync build/libwgui.so release/lib/libwgui.so
+
+      - name: Release Binaries
+        uses: Silverlan/common_actions/release_nightly_binaries@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit: ${{ github.ref_name }}
