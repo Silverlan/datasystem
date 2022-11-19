@@ -1,20 +1,22 @@
 name: Build
 description: 'Build library'
 inputs:
-  root_dir:
-    description: 'Root directory'
+  repo-directory:
+    description: 'Specifies source code location. If empty, source code will be downloaded to working-directory.'
     required: true
-  should_checkout:
-    description: 'Checkout the core library?'
+    default: ''
+  working-directory:
+    description: 'Working Directory'
     required: true
-    default: '1'
-  dir:
-    description: 'Library directory'
-    required: true
-    default: 'external_libs/datasystem'
+    default: '.'
 runs:
   using: "composite"
   steps:
+    - uses: Silverlan/common_actions/action_start@main
+      with:
+        name: "datasystem > build"
+        input_values: "repo-directory: ${{inputs.repo-directory}},working-directory: ${{inputs.working-directory}}"
+
     - name: Initialize Env
       id: init-env
       uses: Silverlan/common_actions/set_common_env_vars@main
@@ -22,14 +24,13 @@ runs:
     - uses: ChristopherHX/conditional@b4a9649204f81002ec9a4ef7d4bf7d6b2ab7fa55
       name: CMake Build
       with:
-        if: ${{inputs.should_checkout == '1'}}
+        if: ${{inputs.repo-directory == ''}}
         step: |
-          uses: Silverlan/common_actions/get_submodule@main
+          uses: Silverlan/common_actions/get_submodule_simple@main
           with:
             repo: 'Silverlan/datasystem'
-            repo_name: 'datasystem'
             cmake_var: 'DEPENDENCY_DATASYSTEM_INCLUDE'
-            dir: 'external_libs'
+            working-directory: ${{inputs.working-directory}}
             
     - name: Download submodule - exprtk
       uses: Silverlan/common_actions/get_submodule@main
@@ -40,9 +41,12 @@ runs:
         repo_branch: 'master'
         cmake_var: 'DEPENDENCY_EXPRTK_INCLUDE'
         include_dir: '.'
+        working-directory: ${{inputs.working-directory}}
         
     - name: Download common external libs
       uses: Silverlan/common_actions/get_common_external_libs@main
+      with:
+        working-directory: ${{inputs.working-directory}}
             
     - uses: Silverlan/common_actions/build_cmake@main
       name: CMake Build
@@ -51,5 +55,8 @@ runs:
         build_generator: ${{ matrix.config.generators }}
         cmake_var: 'DEPENDENCY_DATASYSTEM_LIBRARY'
         build_target: datasystem
-        build_dir: '${{ matrix.config.build_dir }}/${{ inputs.dir }}'
-        cmake_script_location: '${{ inputs.dir }}'
+        build_dir: './build'
+        cmake_script_location: '.'
+        working-directory: ${{inputs.working-directory}}
+        
+    - uses: Silverlan/common_actions/action_end@main
