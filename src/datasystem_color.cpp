@@ -8,7 +8,9 @@
 ds::Color::Color(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings), m_value(value) {}
 ds::Color::Color(ds::Settings &dataSettings, const ::Color &value) : Value(dataSettings), m_value(value) {}
 ds::Color *ds::Color::Copy() { return new Color(*m_dataSettings, m_value); }
+ds::ValueType ds::Color::GetType() const { return ValueType::Color; }
 const Color &ds::Color::GetValue() const { return m_value; }
+void ds::Color::SetValue(const ::Color &value) { m_value = value; }
 
 std::string ds::Color::GetString() const
 {

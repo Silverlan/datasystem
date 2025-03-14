@@ -5,6 +5,7 @@
 #include "datasystem.h"
 #include "datasystem_color.h"
 #include "datasystem_vector.h"
+#include "datasystem_t.hpp"
 #include <fsys/filesystem.h>
 #include <sharedutils/util_string.h>
 #include <sharedutils/util.h>
@@ -82,8 +83,8 @@ ds::Base *ds::Base::Copy() { return new ds::Base(*this); }
 bool ds::Base::IsBlock() const { return false; }
 bool ds::Base::IsContainer() const { return false; }
 ds::Base::~Base() {}
-std::shared_ptr<ds::Block> ds::Base::GetBlock(const std::string &, unsigned int) { return nullptr; }
-std::shared_ptr<ds::Block> ds::Base::GetBlock(const std::string &name) { return GetBlock(name, 0); }
+std::shared_ptr<ds::Block> ds::Base::GetBlock(const std::string_view &, unsigned int) { return nullptr; }
+std::shared_ptr<ds::Block> ds::Base::GetBlock(const std::string_view &name) { return GetBlock(name, 0); }
 
 ////////////////////////
 
@@ -121,7 +122,7 @@ ds::Block *ds::Iterator::operator->() { return get(); }
 
 ds::Block::Block(Settings &dataSettings) : ds::Base(dataSettings) {}
 ds::Block::~Block() { m_data.clear(); }
-std::shared_ptr<ds::Block> ds::Block::GetBlock(const std::string &name, unsigned int id)
+std::shared_ptr<ds::Block> ds::Block::GetBlock(const std::string_view &name, unsigned int id)
 {
 	auto &data = GetValue(name);
 	if(data == nullptr || (!data->IsBlock() && !data->IsContainer()))
@@ -200,7 +201,7 @@ std::string ds::Block::ToString(const std::optional<std::string> &rootIdentifier
 	return ss.str();
 }
 bool ds::Block::IsBlock() const { return true; }
-const std::unordered_map<std::string, std::shared_ptr<ds::Base>> *ds::Block::GetData() const { return &m_data; }
+const ds::Block::DataMap *ds::Block::GetData() const { return &m_data; }
 void ds::Block::AddData(const std::string &name, const std::shared_ptr<Base> &data)
 {
 	auto lname = name;
@@ -224,7 +225,7 @@ void ds::Block::AddData(const std::string &name, const std::shared_ptr<Base> &da
 	container->AddData(std::static_pointer_cast<ds::Block>(data));
 	it->second = container;
 }
-const std::shared_ptr<ds::Base> &ds::Block::GetValue(const std::string &key) const
+const std::shared_ptr<ds::Base> &ds::Block::GetValue(const std::string_view &key) const
 {
 	static std::shared_ptr<ds::Base> nptr = nullptr;
 	auto it = m_data.find(key);
@@ -232,7 +233,7 @@ const std::shared_ptr<ds::Base> &ds::Block::GetValue(const std::string &key) con
 		return nptr;
 	return it->second;
 }
-std::shared_ptr<ds::Value> ds::Block::GetDataValue(const std::string &key) const
+std::shared_ptr<ds::Value> ds::Block::GetDataValue(const std::string_view &key) const
 {
 	auto it = m_data.find(key);
 	if(it == m_data.end() || it->second->IsBlock() || it->second->IsContainer())
@@ -248,6 +249,11 @@ std::shared_ptr<ds::Block> ds::Block::AddBlock(const std::string &name)
 	AddData(name, block);
 	return block;
 }
+void ds::Block::AddValue(const std::string &name, const std::string &value) { AddValue<std::string, ds::String>(name, value, "string"); }
+void ds::Block::AddValue(const std::string &name, const ::Color &value) { AddValue<::Color, ds::Color>(name, value, "color"); }
+void ds::Block::AddValue(const std::string &name, const ::Vector2 &value) { AddValue<::Vector2, ds::Vector2>(name, value, "vector2"); }
+void ds::Block::AddValue(const std::string &name, const ::Vector3 &value) { AddValue<::Vector3, ds::Vector>(name, value, "vector"); }
+void ds::Block::AddValue(const std::string &name, const ::Vector4 &value) { AddValue<::Vector4, ds::Vector4>(name, value, "vector4"); }
 std::shared_ptr<ds::Base> ds::Block::AddValue(const std::string &type, const std::string &name, const std::string &value)
 {
 	static std::shared_ptr<ds::Base> nptr = nullptr;
@@ -260,7 +266,7 @@ std::shared_ptr<ds::Base> ds::Block::AddValue(const std::string &type, const std
 	AddData(name, data);
 	return data;
 }
-bool ds::Block::GetString(const std::string &key, std::string *data) const
+bool ds::Block::GetString(const std::string_view &key, std::string *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
@@ -269,7 +275,7 @@ bool ds::Block::GetString(const std::string &key, std::string *data) const
 	*data = vdata->GetString();
 	return true;
 }
-bool ds::Block::GetInt(const std::string &key, int *data) const
+bool ds::Block::GetInt(const std::string_view &key, int *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
@@ -278,7 +284,7 @@ bool ds::Block::GetInt(const std::string &key, int *data) const
 	*data = vdata->GetInt();
 	return true;
 }
-bool ds::Block::GetFloat(const std::string &key, float *data) const
+bool ds::Block::GetFloat(const std::string_view &key, float *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
@@ -287,7 +293,7 @@ bool ds::Block::GetFloat(const std::string &key, float *data) const
 	*data = vdata->GetFloat();
 	return true;
 }
-bool ds::Block::GetBool(const std::string &key, bool *data) const
+bool ds::Block::GetBool(const std::string_view &key, bool *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
@@ -296,7 +302,7 @@ bool ds::Block::GetBool(const std::string &key, bool *data) const
 	*data = vdata->GetBool();
 	return true;
 }
-bool ds::Block::GetColor(const std::string &key, ::Color *data) const
+bool ds::Block::GetColor(const std::string_view &key, ::Color *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
@@ -305,7 +311,7 @@ bool ds::Block::GetColor(const std::string &key, ::Color *data) const
 	*data = vdata->GetColor();
 	return true;
 }
-bool ds::Block::GetVector3(const std::string &key, ::Vector3 *data) const
+bool ds::Block::GetVector3(const std::string_view &key, ::Vector3 *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
@@ -314,7 +320,7 @@ bool ds::Block::GetVector3(const std::string &key, ::Vector3 *data) const
 	*data = vdata->GetVector();
 	return true;
 }
-bool ds::Block::GetVector2(const std::string &key, ::Vector2 *data) const
+bool ds::Block::GetVector2(const std::string_view &key, ::Vector2 *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
@@ -323,7 +329,7 @@ bool ds::Block::GetVector2(const std::string &key, ::Vector2 *data) const
 	*data = vdata->GetVector2();
 	return true;
 }
-bool ds::Block::GetVector4(const std::string &key, ::Vector4 *data) const
+bool ds::Block::GetVector4(const std::string_view &key, ::Vector4 *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
@@ -332,57 +338,57 @@ bool ds::Block::GetVector4(const std::string &key, ::Vector4 *data) const
 	*data = vdata->GetVector4();
 	return true;
 }
-bool ds::Block::HasValue(const std::string &key) const { return GetValue(key) != nullptr; }
-std::string ds::Block::GetString(const std::string &key, const std::string &def) const
+bool ds::Block::HasValue(const std::string_view &key) const { return GetValue(key) != nullptr; }
+std::string ds::Block::GetString(const std::string_view &key, const std::string &def) const
 {
 	std::string value;
 	if(!GetString(key, &value))
 		value = def;
 	return value;
 }
-int ds::Block::GetInt(const std::string &key, int def) const
+int ds::Block::GetInt(const std::string_view &key, int def) const
 {
 	int value;
 	if(!GetInt(key, &value))
 		value = def;
 	return value;
 }
-float ds::Block::GetFloat(const std::string &key, float def) const
+float ds::Block::GetFloat(const std::string_view &key, float def) const
 {
 	float value;
 	if(!GetFloat(key, &value))
 		value = def;
 	return value;
 }
-bool ds::Block::GetBool(const std::string &key, bool def) const
+bool ds::Block::GetBool(const std::string_view &key, bool def) const
 {
 	bool value;
 	if(!GetBool(key, &value))
 		value = def;
 	return value;
 }
-::Color ds::Block::GetColor(const std::string &key, const ::Color &def) const
+::Color ds::Block::GetColor(const std::string_view &key, const ::Color &def) const
 {
 	::Color value;
 	if(!GetColor(key, &value))
 		value = def;
 	return value;
 }
-::Vector3 ds::Block::GetVector3(const std::string &key, const ::Vector3 &def) const
+::Vector3 ds::Block::GetVector3(const std::string_view &key, const ::Vector3 &def) const
 {
 	::Vector3 value;
 	if(!GetVector3(key, &value))
 		value = def;
 	return value;
 }
-::Vector2 ds::Block::GetVector2(const std::string &key, const ::Vector2 &def) const
+::Vector2 ds::Block::GetVector2(const std::string_view &key, const ::Vector2 &def) const
 {
 	::Vector2 value;
 	if(!GetVector2(key, &value))
 		value = def;
 	return value;
 }
-::Vector4 ds::Block::GetVector4(const std::string &key, const ::Vector4 &def) const
+::Vector4 ds::Block::GetVector4(const std::string_view &key, const ::Vector4 &def) const
 {
 	::Vector4 value;
 	if(!GetVector4(key, &value))
@@ -390,15 +396,15 @@ bool ds::Block::GetBool(const std::string &key, bool def) const
 	return value;
 }
 
-bool ds::Block::IsString(const std::string &key) const { return IsType<ds::String>(key); }
-bool ds::Block::IsInt(const std::string &key) const { return IsType<ds::Int>(key); }
-bool ds::Block::IsFloat(const std::string &key) const { return IsType<ds::Float>(key); }
-bool ds::Block::IsBool(const std::string &key) const { return IsType<ds::Bool>(key); }
-bool ds::Block::IsColor(const std::string &key) const { return IsType<ds::Color>(key); }
-bool ds::Block::IsVector2(const std::string &key) const { return IsType<ds::Vector2>(key); }
-bool ds::Block::IsVector3(const std::string &key) const { return IsType<ds::Vector>(key); }
-bool ds::Block::IsVector4(const std::string &key) const { return IsType<ds::Vector4>(key); }
-bool ds::Block::GetRawString(const std::string &key, std::string *v) const
+bool ds::Block::IsString(const std::string_view &key) const { return IsType<ds::String>(key); }
+bool ds::Block::IsInt(const std::string_view &key) const { return IsType<ds::Int>(key); }
+bool ds::Block::IsFloat(const std::string_view &key) const { return IsType<ds::Float>(key); }
+bool ds::Block::IsBool(const std::string_view &key) const { return IsType<ds::Bool>(key); }
+bool ds::Block::IsColor(const std::string_view &key) const { return IsType<ds::Color>(key); }
+bool ds::Block::IsVector2(const std::string_view &key) const { return IsType<ds::Vector2>(key); }
+bool ds::Block::IsVector3(const std::string_view &key) const { return IsType<ds::Vector>(key); }
+bool ds::Block::IsVector4(const std::string_view &key) const { return IsType<ds::Vector4>(key); }
+bool ds::Block::GetRawString(const std::string_view &key, std::string *v) const
 {
 	auto data = GetRawType<ds::String>(key);
 	if(data == nullptr)
@@ -406,7 +412,7 @@ bool ds::Block::GetRawString(const std::string &key, std::string *v) const
 	*v = data->GetString();
 	return true;
 }
-bool ds::Block::GetRawInt(const std::string &key, int *v) const
+bool ds::Block::GetRawInt(const std::string_view &key, int *v) const
 {
 	auto data = GetRawType<ds::Int>(key);
 	if(data == nullptr)
@@ -414,7 +420,7 @@ bool ds::Block::GetRawInt(const std::string &key, int *v) const
 	*v = data->GetInt();
 	return true;
 }
-bool ds::Block::GetRawFloat(const std::string &key, float *v) const
+bool ds::Block::GetRawFloat(const std::string_view &key, float *v) const
 {
 	auto data = GetRawType<ds::Float>(key);
 	if(data == nullptr)
@@ -422,7 +428,7 @@ bool ds::Block::GetRawFloat(const std::string &key, float *v) const
 	*v = data->GetFloat();
 	return true;
 }
-bool ds::Block::GetRawBool(const std::string &key, bool *v) const
+bool ds::Block::GetRawBool(const std::string_view &key, bool *v) const
 {
 	auto data = GetRawType<ds::Bool>(key);
 	if(data == nullptr)
@@ -430,7 +436,7 @@ bool ds::Block::GetRawBool(const std::string &key, bool *v) const
 	*v = data->GetBool();
 	return true;
 }
-bool ds::Block::GetRawColor(const std::string &key, ::Color *v) const
+bool ds::Block::GetRawColor(const std::string_view &key, ::Color *v) const
 {
 	auto data = GetRawType<ds::Color>(key);
 	if(data == nullptr)
@@ -438,7 +444,7 @@ bool ds::Block::GetRawColor(const std::string &key, ::Color *v) const
 	*v = data->GetColor();
 	return true;
 }
-bool ds::Block::GetRawVector3(const std::string &key, ::Vector3 *v) const
+bool ds::Block::GetRawVector3(const std::string_view &key, ::Vector3 *v) const
 {
 	auto data = GetRawType<ds::Vector>(key);
 	if(data == nullptr)
@@ -446,7 +452,7 @@ bool ds::Block::GetRawVector3(const std::string &key, ::Vector3 *v) const
 	*v = data->GetVector();
 	return true;
 }
-bool ds::Block::GetRawVector2(const std::string &key, ::Vector2 *v) const
+bool ds::Block::GetRawVector2(const std::string_view &key, ::Vector2 *v) const
 {
 	auto data = GetRawType<ds::Vector2>(key);
 	if(data == nullptr)
@@ -454,7 +460,7 @@ bool ds::Block::GetRawVector2(const std::string &key, ::Vector2 *v) const
 	*v = data->GetVector2();
 	return true;
 }
-bool ds::Block::GetRawVector4(const std::string &key, ::Vector4 *v) const
+bool ds::Block::GetRawVector4(const std::string_view &key, ::Vector4 *v) const
 {
 	auto data = GetRawType<ds::Vector4>(key);
 	if(data == nullptr)
@@ -726,8 +732,10 @@ std::shared_ptr<ds::Block> ds::System::LoadData(const char *path, const std::uno
 
 ds::String::String(Settings &dataSettings, const std::string &value) : ds::Value(dataSettings), m_value(value) {}
 ds::Value *ds::String::Copy() { return new ds::String(*m_dataSettings, GetValue()); }
+ds::ValueType ds::String::GetType() const { return ValueType::String; }
 
 const std::string &ds::String::GetValue() const { return m_value; }
+void ds::String::SetValue(const std::string &value) { m_value = value; }
 
 std::string ds::String::GetString() const { return m_value; }
 int ds::String::GetInt() const { return util::to_int(m_value); }
@@ -752,7 +760,9 @@ ds::Int::Int(Settings &dataSettings, const std::string &value) : ds::Value(dataS
 }
 ds::Int::Int(Settings &dataSettings, int32_t value) : ds::Value(dataSettings), m_value(value) {}
 ds::Value *ds::Int::Copy() { return new ds::Int(*m_dataSettings, m_value); }
+ds::ValueType ds::Int::GetType() const { return ValueType::Int; }
 int32_t ds::Int::GetValue() const { return m_value; }
+void ds::Int::SetValue(int32_t value) { m_value = value; }
 
 std::string ds::Int::GetString() const { return std::to_string(m_value); }
 int ds::Int::GetInt() const { return m_value; }
@@ -773,7 +783,9 @@ ds::Float::Float(Settings &dataSettings, const std::string &value) : ds::Value(d
 }
 ds::Float::Float(Settings &dataSettings, float value) : ds::Value(dataSettings), m_value(value) {}
 ds::Value *ds::Float::Copy() { return new ds::Float(*m_dataSettings, m_value); }
+ds::ValueType ds::Float::GetType() const { return ValueType::Float; }
 float ds::Float::GetValue() const { return m_value; }
+void ds::Float::SetValue(float value) { m_value = value; }
 
 std::string ds::Float::GetString() const { return std::to_string(m_value); }
 int ds::Float::GetInt() const { return m_value; }
@@ -794,7 +806,9 @@ REGISTER_DATA_TYPE(ds::Float, float)
 ds::Bool::Bool(Settings &dataSettings, const std::string &value) : ds::Value(dataSettings), m_value(util::to_boolean(value)) {}
 ds::Bool::Bool(Settings &dataSettings, bool value) : ds::Value(dataSettings), m_value(value) {}
 ds::Value *ds::Bool::Copy() { return new ds::Bool(*m_dataSettings, m_value); }
+ds::ValueType ds::Bool::GetType() const { return ValueType::Bool; }
 bool ds::Bool::GetValue() const { return m_value; }
+void ds::Bool::SetValue(bool value) { m_value = value; }
 
 std::string ds::Bool::GetString() const { return std::to_string(m_value); }
 int ds::Bool::GetInt() const { return m_value; }

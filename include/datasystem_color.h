@@ -15,9 +15,11 @@ namespace ds {
 		Color(ds::Settings &dataSettings, const ::Color &value);
 		virtual Color *Copy() override;
 		const ::Color &GetValue() const;
+		void SetValue(const ::Color &value);
 
 		virtual std::string GetString() const override;
 		virtual std::string GetTypeString() const override;
+		virtual ValueType GetType() const override;
 		virtual int GetInt() const override;
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
