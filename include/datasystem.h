@@ -52,7 +52,10 @@ namespace ds {
 		Vector2,
 		Vector3,
 		Vector4,
+		Texture,
 		User,
+
+		Count,
 	};
 
 	class String;
