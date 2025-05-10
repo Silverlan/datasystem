@@ -14,7 +14,7 @@ pr_add_compile_definitions(
 		-DDATASYSTEM_DLL
 )
 
-if(WIN32)
+if(MSVC)
 	target_compile_options(${PROJ_NAME} PRIVATE /bigobj)
 endif()
 
