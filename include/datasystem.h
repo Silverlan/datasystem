@@ -122,7 +122,7 @@ namespace ds {
 		void RemoveValue(const std::string &key);
 		bool IsEmpty() const;
 		// Creates a copy of all data contained in this block
-		Block *Copy();
+		Block *Copy() override;;
 		std::string ToString(const std::optional<std::string> &rootIdentifier, uint8_t tabDepth = 0) const;
 		virtual void AddData(const std::string &name, const std::shared_ptr<Base> &data);
 		std::shared_ptr<ds::Base> AddValue(const std::string &type, const std::string &name, const std::string &value);
@@ -349,6 +349,10 @@ class DLLDATASYSTEM Bool : public Value {
 	auto *_reg_datatype_##typeName = new ds::__reg_datatype(#typeName, [](ds::Settings &dataSettings, const std::string &value) -> ds::Value * { return new className(dataSettings, value); });                                                                                                  \
 	std::string className::GetTypeString() const { return #typeName; }
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpotentially-evaluated-expression"
+#endif
 template<class TType>
 bool ds::Block::IsType(const std::string_view &key) const
 {
@@ -359,6 +363,9 @@ bool ds::Block::IsType(const std::string_view &key) const
 		return false;
 	return true;
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 template<class TType>
 std::shared_ptr<TType> ds::Block::GetRawType(const std::string_view &key) const
