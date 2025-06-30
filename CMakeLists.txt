@@ -4,7 +4,7 @@ set(PROJ_NAME datasystem)
 pr_add_library(${PROJ_NAME} SHARED)
 
 pr_add_dependency(${PROJ_NAME} vfilesystem TARGET PUBLIC)
-pr_add_external_dependency(${PROJ_NAME} exprtk HEADER_ONLY)
+pr_add_third_party_dependency(${PROJ_NAME} exprtk)
 
 pr_add_headers(${PROJ_NAME} "include/")
 pr_add_sources(${PROJ_NAME} "src/")
