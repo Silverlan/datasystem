@@ -247,6 +247,7 @@ namespace ds {
 	DLLDATASYSTEM void register_data_value_type(const std::string &type, const std::function<Value *(Settings &, const std::string &)> &factory);
 	DLLDATASYSTEM ValueTypeMap *get_data_value_type_map();
 	DLLDATASYSTEM std::shared_ptr<Settings> create_data_settings(const std::unordered_map<std::string, std::string> &enums);
+	DLLDATASYSTEM void close();
 
 	class DLLDATASYSTEM __reg_datatype {public : __reg_datatype(const std::string &name, const std::function<Value *(Settings &, const std::string &)> &factory) {register_data_value_type(name, factory);
 	delete this;

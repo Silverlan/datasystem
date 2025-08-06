@@ -17,13 +17,15 @@
 
 static ds::ValueTypeMap *g_DataValueFactoryMap = nullptr;
 
+static ds::ValueTypeMap map;
+void ds::close() { map = {}; }
+
 std::shared_ptr<ds::Settings> ds::create_data_settings(const std::unordered_map<std::string, std::string> &enums) { return std::make_shared<ds::Settings>(enums); }
 void ds::register_data_value_type(const std::string &type, const std::function<Value *(Settings &, const std::string &)> &factory)
 {
 	auto ltype = type;
 	ustring::to_lower(ltype);
 	if(g_DataValueFactoryMap == nullptr) {
-		static ds::ValueTypeMap map;
 		g_DataValueFactoryMap = &map;
 	}
 	g_DataValueFactoryMap->AddFactory(ltype, factory);
