@@ -1,9 +1,16 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "datasystem_vector.h"
-#include <sharedutils/util_string.h>
+module;
+
+#include "datasystemdefinitions.hpp"
+#include "mathutil/glmutil.h"
 #include <sstream>
+
+module pragma.datasystem;
+
+import :vector;
+import pragma.string;
 
 ds::Vector::Vector(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings), m_value(uvec::create(value)) {}
 ds::Vector::Vector(ds::Settings &dataSettings, const Vector3 &value) : Value(dataSettings), m_value(value) {}
@@ -30,7 +37,7 @@ REGISTER_DATA_TYPE(ds::Vector, vector)
 
 /////////////
 
-ds::Vector4::Vector4(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings) { ustring::string_to_array<glm::vec4::value_type, Double>(value, &m_value[0], atof, 4); }
+ds::Vector4::Vector4(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings) { ustring::string_to_array<::Vector4::value_type, Double>(value, &m_value[0], atof, 4); }
 ds::Vector4::Vector4(ds::Settings &dataSettings, const ::Vector4 &value) : Value(dataSettings), m_value(value) {}
 ds::Vector4 *ds::Vector4::Copy() { return new Vector4(*m_dataSettings, m_value); }
 ds::ValueType ds::Vector4::GetType() const { return ValueType::Vector4; }
@@ -55,7 +62,7 @@ REGISTER_DATA_TYPE(ds::Vector4, vector4)
 
 /////////////
 
-ds::Vector2::Vector2(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings) { ustring::string_to_array<glm::vec2::value_type, Double>(value, &m_value[0], atof, 2); }
+ds::Vector2::Vector2(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings) { ustring::string_to_array<::Vector2::value_type, Double>(value, &m_value[0], atof, 2); }
 ds::Vector2::Vector2(ds::Settings &dataSettings, const ::Vector2 &value) : Value(dataSettings), m_value(value) {}
 ds::Vector2 *ds::Vector2::Copy() { return new Vector2(*m_dataSettings, m_value); }
 ds::ValueType ds::Vector2::GetType() const { return ValueType::Vector2; }

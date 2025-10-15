@@ -1,13 +1,16 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#ifndef __DATASYSTEM_COLOR_H__
-#define __DATASYSTEM_COLOR_H__
+module;
 
-#include "datasystem.h"
-#include <mathutil/color.h>
+#include "datasystemdefinitions.hpp"
+#include <string>
 
-namespace ds {
+export module pragma.datasystem:color;
+
+export import :core;
+
+export namespace ds {
 	class DLLDATASYSTEM Color : public Value {
 	  public:
 		Color(ds::Settings &dataSettings, const std::string &value);
@@ -30,5 +33,3 @@ namespace ds {
 		::Color m_value;
 	};
 };
-
-#endif

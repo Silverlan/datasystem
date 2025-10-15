@@ -1,19 +1,17 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "datasystem.h"
-#include "datasystem_color.h"
-#include "datasystem_vector.h"
-#include "datasystem_t.hpp"
-#include <fsys/filesystem.h>
-#include <sharedutils/util_string.h>
-#include <sharedutils/util.h>
-#include <sharedutils/util_ifile.hpp>
+module;
+
+#include "datasystemdefinitions.hpp"
 #include <algorithm>
 #include <sstream>
-#include <mathutil/color.h>
 #include <exprtk.hpp>
-#include <fsys/ifile.hpp>
+
+module pragma.datasystem;
+
+import :core;
+import pragma.filesystem;
 
 static ds::ValueTypeMap *g_DataValueFactoryMap = nullptr;
 
