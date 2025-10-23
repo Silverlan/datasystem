@@ -18,14 +18,12 @@ module;
 
 export module pragma.datasystem:core;
 
+export import pragma.filesystem;
 export import pragma.math;
 
 export {
 	#pragma warning(push)
 	#pragma warning(disable : 4251)
-	namespace ufile {
-		struct IFile;
-	};
 	namespace ds {
 		enum class ValueType : uint8_t {
 			Invalid,
