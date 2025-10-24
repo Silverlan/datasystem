@@ -141,7 +141,7 @@ export {
 			int GetInt(const std::string_view &key, int def = 0) const;
 			float GetFloat(const std::string_view &key, float def = 0.f) const;
 			bool GetBool(const std::string_view &key, bool def = false) const;
-			::Color GetColor(const std::string_view &key, const ::Color &def = ::Color::White) const;
+			::Color GetColor(const std::string_view &key, const ::Color &def = colors::White) const;
 			::Vector2 GetVector2(const std::string_view &key, const ::Vector2 &def = {}) const;
 			::Vector3 GetVector3(const std::string_view &key, const ::Vector3 &def = {}) const;
 			::Vector4 GetVector4(const std::string_view &key, const ::Vector4 &def = {}) const;
