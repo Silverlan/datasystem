@@ -329,29 +329,31 @@ export {
 	;
 	#pragma warning(pop)
 
-	#ifdef __clang__
-	#pragma clang diagnostic push
-	#pragma clang diagnostic ignored "-Wpotentially-evaluated-expression"
-	#endif
-	template<class TType>
-	bool ds::Block::IsType(const std::string_view &key) const
-	{
-		auto v = GetDataValue(key);
-		if(v == nullptr)
-			return false;
-		if(typeid(*v) != typeid(TType))
-			return false;
-		return true;
-	}
-	#ifdef __clang__
-	#pragma clang diagnostic pop
-	#endif
+    namespace ds {
+        #ifdef __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wpotentially-evaluated-expression"
+        #endif
+        template<class TType>
+        bool Block::IsType(const std::string_view &key) const
+        {
+            auto v = GetDataValue(key);
+            if(v == nullptr)
+                return false;
+            if(typeid(*v) != typeid(TType))
+                return false;
+            return true;
+        }
+        #ifdef __clang__
+        #pragma clang diagnostic pop
+        #endif
 
-	template<class TType>
-	std::shared_ptr<TType> ds::Block::GetRawType(const std::string_view &key) const
-	{
-		return std::dynamic_pointer_cast<TType>(GetDataValue(key));
-	}
+        template<class TType>
+        std::shared_ptr<TType> Block::GetRawType(const std::string_view &key) const
+        {
+            return std::dynamic_pointer_cast<TType>(GetDataValue(key));
+        }
+    }
 
 	namespace ds {
 		template<typename T, class TDs>

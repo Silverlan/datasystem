@@ -7,6 +7,8 @@ module;
 #include <algorithm>
 #include <sstream>
 #include <exprtk.hpp>
+#include <memory>
+#include <optional>
 
 module pragma.datasystem;
 
