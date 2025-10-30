@@ -4,11 +4,7 @@
 module;
 
 #include "datasystemdefinitions.hpp"
-#include <algorithm>
-#include <sstream>
 #include <exprtk.hpp>
-#include <memory>
-#include <optional>
 
 module pragma.datasystem;
 
@@ -689,7 +685,6 @@ static bool read_block_data(ds::Block &block, const std::unordered_map<std::stri
 }
 
 /*
-#include <iostream>
 void PrintBlocks(std::string name,DataBase *data,std::string t="\t")
 {
 	if(!data->IsBlock())

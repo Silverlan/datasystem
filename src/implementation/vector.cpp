@@ -5,7 +5,6 @@ module;
 
 #include "datasystemdefinitions.hpp"
 #include "mathutil/glmutil.h"
-#include <sstream>
 
 module pragma.datasystem;
 

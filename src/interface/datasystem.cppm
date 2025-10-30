@@ -3,7 +3,6 @@
 
 module;
 
-#include <string>
 
 export module pragma.datasystem;
 export import :color;

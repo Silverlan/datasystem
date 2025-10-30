@@ -4,7 +4,6 @@
 module;
 
 #include "datasystemdefinitions.hpp"
-#include <string>
 
 export module pragma.datasystem:color;
 

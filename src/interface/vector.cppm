@@ -4,8 +4,6 @@
 module;
 
 #include "datasystemdefinitions.hpp"
-#include <string>
-#include <vector>
 
 export module pragma.datasystem:vector;
 

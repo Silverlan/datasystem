@@ -4,7 +4,6 @@
 module;
 
 #include "datasystemdefinitions.hpp"
-#include <sstream>
 
 module pragma.datasystem;
 
