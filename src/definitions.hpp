@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: (c) 2025 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#pragma once;
+#pragma once
 
 #ifdef DATASYSTEM_DLL
 #ifdef __linux__

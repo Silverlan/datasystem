@@ -3,8 +3,7 @@
 
 module;
 
-#include "datasystemdefinitions.hpp"
-#include "mathutil/glmutil.h"
+#include "definitions.hpp"
 
 module pragma.datasystem;
 

@@ -3,9 +3,7 @@
 
 module;
 
-#include <sharedutils/magic_enum.hpp>
-#include <sharedutils/util_heterogenous_lookup.hpp>
-#include "datasystemdefinitions.hpp"
+#include "definitions.hpp"
 
 export module pragma.datasystem:core;
 
@@ -13,8 +11,8 @@ export import pragma.filesystem;
 export import pragma.math;
 
 export {
-	#pragma warning(push)
-	#pragma warning(disable : 4251)
+#pragma warning(push)
+#pragma warning(disable : 4251)
 	namespace ds {
 		enum class ValueType : uint8_t {
 			Invalid,
@@ -45,12 +43,12 @@ export {
 		class Block;
 		class Container;
 		class DLLDATASYSTEM Base : public std::enable_shared_from_this<Base> {
-		protected:
+		  protected:
 			friend Container;
 			friend Block;
 			Base(Settings &dataSettings);
 			std::shared_ptr<Settings> m_dataSettings = nullptr;
-		public:
+		  public:
 			virtual bool IsBlock() const;
 			virtual bool IsContainer() const;
 			virtual bool IsValue() const { return false; }
@@ -64,11 +62,11 @@ export {
 		};
 
 		class DLLDATASYSTEM Iterator {
-		private:
+		  private:
 			Base &m_target;
 			unsigned int m_index;
 			std::unordered_map<std::string, Base *> it;
-		public:
+		  public:
 			Iterator(Base &data);
 			bool IsValid();
 			void operator++(int);
@@ -78,16 +76,16 @@ export {
 
 		class DLLDATASYSTEM Value;
 		class DLLDATASYSTEM Block : public Base {
-		public:
+		  public:
 			using DataMap = std::unordered_map<std::string, std::shared_ptr<Base>, util::hl_string_hash, std::equal_to<>>;
-		private:
+		  private:
 			DataMap m_data;
 
 			template<typename T, class TDs>
-				requires(
-				std::is_same_v<TDs, ds::String> || std::is_same_v<TDs, ds::Int> || std::is_same_v<TDs, ds::Float> || std::is_same_v<TDs, ds::Bool> || std::is_same_v<TDs, ds::Color> || std::is_same_v<TDs, ds::Vector2> || std::is_same_v<TDs, ds::Vector> || std::is_same_v<TDs, ds::Vector4>)
+			    requires(
+			      std::is_same_v<TDs, ds::String> || std::is_same_v<TDs, ds::Int> || std::is_same_v<TDs, ds::Float> || std::is_same_v<TDs, ds::Bool> || std::is_same_v<TDs, ds::Color> || std::is_same_v<TDs, ds::Vector2> || std::is_same_v<TDs, ds::Vector> || std::is_same_v<TDs, ds::Vector4>)
 			void AddValue(const std::string &name, const T &value, const char *typeName);
-		public:
+		  public:
 			Block(Settings &dataSettings);
 			virtual ~Block() override;
 			virtual bool IsBlock() const override;
@@ -96,13 +94,14 @@ export {
 			void RemoveValue(const std::string &key);
 			bool IsEmpty() const;
 			// Creates a copy of all data contained in this block
-			Block *Copy() override;;
+			Block *Copy() override;
+			;
 			std::string ToString(const std::optional<std::string> &rootIdentifier, uint8_t tabDepth = 0) const;
 			virtual void AddData(const std::string &name, const std::shared_ptr<Base> &data);
 			std::shared_ptr<ds::Base> AddValue(const std::string &type, const std::string &name, const std::string &value);
 
 			template<typename T>
-				requires(std::is_arithmetic_v<T>)
+			    requires(std::is_arithmetic_v<T>)
 			void AddValue(const std::string &name, const T &value)
 			{
 				if constexpr(std::is_same_v<std::remove_cvref_t<T>, bool>)
@@ -118,7 +117,7 @@ export {
 			void AddValue(const std::string &name, const ::Vector3 &value);
 			void AddValue(const std::string &name, const ::Vector4 &value);
 			template<typename T>
-				requires(std::is_enum_v<T>)
+			    requires(std::is_enum_v<T>)
 			void AddValue(const std::string &name, T value)
 			{
 				AddValue(name, std::string {magic_enum::enum_name(value)});
@@ -174,12 +173,12 @@ export {
 		};
 
 		class DLLDATASYSTEM Container : public Base {
-		public:
+		  public:
 			friend Block;
 			virtual ~Container() override;
-		protected:
+		  protected:
 			std::vector<std::shared_ptr<Block>> m_dataBlocks;
-		public:
+		  public:
 			Container(Settings &dataSettings);
 			virtual bool IsContainer() const override;
 			void AddData(const std::shared_ptr<Block> &data);
@@ -189,9 +188,9 @@ export {
 		};
 
 		class DLLDATASYSTEM Value : public Base {
-		protected:
+		  protected:
 			Value(Settings &dataSettings);
-		public:
+		  public:
 			virtual std::string GetString() const = 0;
 			virtual bool IsValue() const override { return true; }
 			virtual std::string GetTypeString() const = 0;
@@ -206,15 +205,15 @@ export {
 		};
 
 		class DLLDATASYSTEM System {
-		public:
+		  public:
 			static std::shared_ptr<Block> ReadData(ufile::IFile &f, const std::unordered_map<std::string, std::string> &enums = {});
 			static std::shared_ptr<Block> LoadData(const char *path, const std::unordered_map<std::string, std::string> &enums = {});
 		};
 
 		class DLLDATASYSTEM ValueTypeMap {
-		private:
+		  private:
 			std::unordered_map<std::string, std::function<Value *(Settings &, const std::string &)>> m_factories;
-		public:
+		  public:
 			void AddFactory(const std::string &name, const std::function<Value *(Settings &, const std::string &)> &factory);
 			std::function<Value *(Settings &, const std::string &)> FindFactory(const std::string &name);
 		};
@@ -224,131 +223,134 @@ export {
 		DLLDATASYSTEM std::shared_ptr<Settings> create_data_settings(const std::unordered_map<std::string, std::string> &enums);
 		DLLDATASYSTEM void close();
 
-		class DLLDATASYSTEM __reg_datatype {public : __reg_datatype(const std::string &name, const std::function<Value *(Settings &, const std::string &)> &factory) {register_data_value_type(name, factory);
-		delete this;
+		class DLLDATASYSTEM __reg_datatype {
+		  public:
+			__reg_datatype(const std::string &name, const std::function<Value *(Settings &, const std::string &)> &factory)
+			{
+				register_data_value_type(name, factory);
+				delete this;
+			}
+		};
+
+		class DLLDATASYSTEM String : public Value {
+		  public:
+			String(Settings &dataSettings, const std::string &value);
+			virtual Value *Copy() override;
+			const std::string &GetValue() const;
+			void SetValue(const std::string &value);
+
+			virtual std::string GetString() const override;
+			virtual std::string GetTypeString() const override;
+			virtual ValueType GetType() const override;
+			virtual int GetInt() const override;
+			virtual float GetFloat() const override;
+			virtual bool GetBool() const override;
+			virtual ::Color GetColor() const override;
+			virtual ::Vector3 GetVector() const override;
+			virtual ::Vector2 GetVector2() const override;
+			virtual ::Vector4 GetVector4() const override;
+		  private:
+			std::string m_value;
+		};
+
+		class DLLDATASYSTEM Int : public Value {
+		  public:
+			Int(Settings &dataSettings, const std::string &value);
+			Int(Settings &dataSettings, int32_t value);
+			virtual Value *Copy() override;
+			int32_t GetValue() const;
+			void SetValue(int32_t value);
+
+			virtual std::string GetString() const override;
+			virtual std::string GetTypeString() const override;
+			virtual ValueType GetType() const override;
+			virtual int GetInt() const override;
+			virtual float GetFloat() const override;
+			virtual bool GetBool() const override;
+			virtual ::Color GetColor() const override;
+			virtual ::Vector3 GetVector() const override;
+			virtual ::Vector2 GetVector2() const override;
+			virtual ::Vector4 GetVector4() const override;
+		  private:
+			int32_t m_value;
+		};
+
+		class DLLDATASYSTEM Float : public Value {
+		  public:
+			Float(Settings &dataSettings, const std::string &value);
+			Float(Settings &dataSettings, float value);
+			virtual Value *Copy() override;
+			float GetValue() const;
+			void SetValue(float value);
+
+			virtual std::string GetString() const override;
+			virtual std::string GetTypeString() const override;
+			virtual ValueType GetType() const override;
+			virtual int GetInt() const override;
+			virtual float GetFloat() const override;
+			virtual bool GetBool() const override;
+			virtual ::Color GetColor() const override;
+			virtual ::Vector3 GetVector() const override;
+			virtual ::Vector2 GetVector2() const override;
+			virtual ::Vector4 GetVector4() const override;
+		  private:
+			float m_value;
+		};
+
+		class DLLDATASYSTEM Bool : public Value {
+		  public:
+			Bool(Settings &dataSettings, const std::string &value);
+			Bool(Settings &dataSettings, bool value);
+			virtual Value *Copy() override;
+			bool GetValue() const;
+			void SetValue(bool value);
+
+			virtual std::string GetString() const override;
+			virtual std::string GetTypeString() const override;
+			virtual ValueType GetType() const override;
+			virtual int GetInt() const override;
+			virtual float GetFloat() const override;
+			virtual bool GetBool() const override;
+			virtual ::Color GetColor() const override;
+			virtual ::Vector3 GetVector() const override;
+			virtual ::Vector2 GetVector2() const override;
+			virtual ::Vector4 GetVector4() const override;
+		  private:
+			bool m_value;
+		};
+	};
+#pragma warning(pop)
+
+	namespace ds {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpotentially-evaluated-expression"
+#endif
+		template<class TType>
+		bool Block::IsType(const std::string_view &key) const
+		{
+			auto v = GetDataValue(key);
+			if(v == nullptr)
+				return false;
+			if(typeid(*v) != typeid(TType))
+				return false;
+			return true;
+		}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+		template<class TType>
+		std::shared_ptr<TType> Block::GetRawType(const std::string_view &key) const
+		{
+			return std::dynamic_pointer_cast<TType>(GetDataValue(key));
+		}
 	}
-	}
-	;
-
-	class DLLDATASYSTEM String : public Value {
-	public:
-		String(Settings &dataSettings, const std::string &value);
-		virtual Value *Copy() override;
-		const std::string &GetValue() const;
-		void SetValue(const std::string &value);
-
-		virtual std::string GetString() const override;
-		virtual std::string GetTypeString() const override;
-		virtual ValueType GetType() const override;
-		virtual int GetInt() const override;
-		virtual float GetFloat() const override;
-		virtual bool GetBool() const override;
-		virtual ::Color GetColor() const override;
-		virtual ::Vector3 GetVector() const override;
-		virtual ::Vector2 GetVector2() const override;
-		virtual ::Vector4 GetVector4() const override;
-	private:
-		std::string m_value;
-	};
-
-	class DLLDATASYSTEM Int : public Value {
-	public:
-		Int(Settings &dataSettings, const std::string &value);
-		Int(Settings &dataSettings, int32_t value);
-		virtual Value *Copy() override;
-		int32_t GetValue() const;
-		void SetValue(int32_t value);
-
-		virtual std::string GetString() const override;
-		virtual std::string GetTypeString() const override;
-		virtual ValueType GetType() const override;
-		virtual int GetInt() const override;
-		virtual float GetFloat() const override;
-		virtual bool GetBool() const override;
-		virtual ::Color GetColor() const override;
-		virtual ::Vector3 GetVector() const override;
-		virtual ::Vector2 GetVector2() const override;
-		virtual ::Vector4 GetVector4() const override;
-	private:
-		int32_t m_value;
-	};
-
-	class DLLDATASYSTEM Float : public Value {
-	public:
-		Float(Settings &dataSettings, const std::string &value);
-		Float(Settings &dataSettings, float value);
-		virtual Value *Copy() override;
-		float GetValue() const;
-		void SetValue(float value);
-
-		virtual std::string GetString() const override;
-		virtual std::string GetTypeString() const override;
-		virtual ValueType GetType() const override;
-		virtual int GetInt() const override;
-		virtual float GetFloat() const override;
-		virtual bool GetBool() const override;
-		virtual ::Color GetColor() const override;
-		virtual ::Vector3 GetVector() const override;
-		virtual ::Vector2 GetVector2() const override;
-		virtual ::Vector4 GetVector4() const override;
-	private:
-		float m_value;
-	};
-
-	class DLLDATASYSTEM Bool : public Value {
-	public:
-		Bool(Settings &dataSettings, const std::string &value);
-		Bool(Settings &dataSettings, bool value);
-		virtual Value *Copy() override;
-		bool GetValue() const;
-		void SetValue(bool value);
-
-		virtual std::string GetString() const override;
-		virtual std::string GetTypeString() const override;
-		virtual ValueType GetType() const override;
-		virtual int GetInt() const override;
-		virtual float GetFloat() const override;
-		virtual bool GetBool() const override;
-		virtual ::Color GetColor() const override;
-		virtual ::Vector3 GetVector() const override;
-		virtual ::Vector2 GetVector2() const override;
-		virtual ::Vector4 GetVector4() const override;
-	private:
-		bool m_value;
-	};
-	}
-	;
-	#pragma warning(pop)
-
-    namespace ds {
-        #ifdef __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wpotentially-evaluated-expression"
-        #endif
-        template<class TType>
-        bool Block::IsType(const std::string_view &key) const
-        {
-            auto v = GetDataValue(key);
-            if(v == nullptr)
-                return false;
-            if(typeid(*v) != typeid(TType))
-                return false;
-            return true;
-        }
-        #ifdef __clang__
-        #pragma clang diagnostic pop
-        #endif
-
-        template<class TType>
-        std::shared_ptr<TType> Block::GetRawType(const std::string_view &key) const
-        {
-            return std::dynamic_pointer_cast<TType>(GetDataValue(key));
-        }
-    }
 
 	namespace ds {
 		template<typename T, class TDs>
-			requires(std::is_same_v<TDs, ds::String> || std::is_same_v<TDs, ds::Int> || std::is_same_v<TDs, ds::Float> || std::is_same_v<TDs, ds::Bool> || std::is_same_v<TDs, ds::Color> || std::is_same_v<TDs, ds::Vector2> || std::is_same_v<TDs, ds::Vector> || std::is_same_v<TDs, ds::Vector4>)
+		    requires(
+		      std::is_same_v<TDs, ds::String> || std::is_same_v<TDs, ds::Int> || std::is_same_v<TDs, ds::Float> || std::is_same_v<TDs, ds::Bool> || std::is_same_v<TDs, ds::Color> || std::is_same_v<TDs, ds::Vector2> || std::is_same_v<TDs, ds::Vector> || std::is_same_v<TDs, ds::Vector4>)
 		void Block::AddValue(const std::string &name, const T &value, const char *typeName)
 		{
 			auto dsVal = GetDataValue(name);

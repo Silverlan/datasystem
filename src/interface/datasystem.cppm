@@ -3,7 +3,6 @@
 
 module;
 
-
 export module pragma.datasystem;
 export import :color;
 export import :core;
