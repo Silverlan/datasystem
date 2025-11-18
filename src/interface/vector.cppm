@@ -1,13 +1,15 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#ifndef __DATASYSTEM_VECTOR_H__
-#define __DATASYSTEM_VECTOR_H__
+module;
 
-#include "datasystem.h"
-#include <mathutil/uvec.h>
+#include "definitions.hpp"
 
-namespace ds {
+export module pragma.datasystem:vector;
+
+export import :core;
+
+export namespace ds {
 	class DLLDATASYSTEM Vector : public Value {
 	  public:
 		Vector(ds::Settings &dataSettings, const std::string &value);
@@ -72,5 +74,3 @@ namespace ds {
 		::Vector2 m_value;
 	};
 };
-
-#endif

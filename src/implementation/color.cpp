@@ -1,8 +1,13 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "datasystem_color.h"
-#include <sstream>
+module;
+
+#include "definitions.hpp"
+
+module pragma.datasystem;
+
+import :color;
 
 ds::Color::Color(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings), m_value(value) {}
 ds::Color::Color(ds::Settings &dataSettings, const ::Color &value) : Value(dataSettings), m_value(value) {}
@@ -10,6 +15,7 @@ ds::Color *ds::Color::Copy() { return new Color(*m_dataSettings, m_value); }
 ds::ValueType ds::Color::GetType() const { return ValueType::Color; }
 const Color &ds::Color::GetValue() const { return m_value; }
 void ds::Color::SetValue(const ::Color &value) { m_value = value; }
+std::string ds::Color::GetTypeString() const { return "color"; }
 
 std::string ds::Color::GetString() const
 {
@@ -28,5 +34,3 @@ bool ds::Color::GetBool() const { return false; }
 	return ::Vector2 {v.x, v.y};
 }
 ::Vector4 ds::Color::GetVector4() const { return m_value.ToVector4(); }
-
-REGISTER_DATA_TYPE(ds::Color, color)

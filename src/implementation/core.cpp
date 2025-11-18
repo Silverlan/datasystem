@@ -1,19 +1,15 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "datasystem.h"
-#include "datasystem_color.h"
-#include "datasystem_vector.h"
-#include "datasystem_t.hpp"
-#include <fsys/filesystem.h>
-#include <sharedutils/util_string.h>
-#include <sharedutils/util.h>
-#include <sharedutils/util_ifile.hpp>
-#include <algorithm>
-#include <sstream>
-#include <mathutil/color.h>
+module;
+
+#include "definitions.hpp"
 #include <exprtk.hpp>
-#include <fsys/ifile.hpp>
+
+module pragma.datasystem;
+
+import :core;
+import pragma.filesystem;
 
 static ds::ValueTypeMap *g_DataValueFactoryMap = nullptr;
 
@@ -45,6 +41,20 @@ std::function<ds::Value *(ds::Settings &, const std::string &)> ds::ValueTypeMap
 	if(it == m_factories.end())
 		return nullptr;
 	return it->second;
+}
+
+void ds::register_base_types()
+{
+	register_data_value_type<ds::Bool>("bool");
+	register_data_value_type<ds::Float>("float");
+	register_data_value_type<ds::Int>("int");
+	register_data_value_type<ds::String>("string");
+
+	register_data_value_type<ds::Vector>("vector");
+	register_data_value_type<ds::Vector2>("vector2");
+	register_data_value_type<ds::Vector4>("vector4");
+
+	register_data_value_type<ds::Color>("color");
 }
 
 ////////////////////////
@@ -689,7 +699,6 @@ static bool read_block_data(ds::Block &block, const std::unordered_map<std::stri
 }
 
 /*
-#include <iostream>
 void PrintBlocks(std::string name,DataBase *data,std::string t="\t")
 {
 	if(!data->IsBlock())
@@ -750,7 +759,7 @@ bool ds::String::GetBool() const { return util::to_boolean(m_value); }
 	return ::Vector2 {v.x, v.y};
 }
 ::Vector4 ds::String::GetVector4() const { return uvec::create_v4(m_value); }
-REGISTER_DATA_TYPE(ds::String, string)
+std::string ds::String::GetTypeString() const { return "string"; }
 
 ////////////////////////
 
@@ -773,7 +782,7 @@ bool ds::Int::GetBool() const { return (m_value != 0) ? true : false; }
 ::Vector3 ds::Int::GetVector() const { return ::Vector3 {m_value, m_value, m_value}; }
 ::Vector2 ds::Int::GetVector2() const { return ::Vector2 {m_value, m_value}; }
 ::Vector4 ds::Int::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
-REGISTER_DATA_TYPE(ds::Int, int)
+std::string ds::Int::GetTypeString() const { return "int"; }
 
 ////////////////////////
 
@@ -800,7 +809,7 @@ bool ds::Float::GetBool() const { return (m_value != 0) ? true : false; }
 ::Vector3 ds::Float::GetVector() const { return ::Vector3 {m_value, m_value, m_value}; }
 ::Vector2 ds::Float::GetVector2() const { return ::Vector2 {m_value, m_value}; }
 ::Vector4 ds::Float::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
-REGISTER_DATA_TYPE(ds::Float, float)
+std::string ds::Float::GetTypeString() const { return "float"; }
 
 ////////////////////////
 
@@ -819,4 +828,4 @@ bool ds::Bool::GetBool() const { return (m_value != 0) ? true : false; }
 ::Vector3 ds::Bool::GetVector() const { return ::Vector3 {m_value, m_value, m_value}; }
 ::Vector2 ds::Bool::GetVector2() const { return ::Vector2 {m_value, m_value}; }
 ::Vector4 ds::Bool::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
-REGISTER_DATA_TYPE(ds::Bool, bool)
+std::string ds::Bool::GetTypeString() const { return "bool"; }
