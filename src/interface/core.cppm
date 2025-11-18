@@ -220,10 +220,9 @@ export {
 
 		DLLDATASYSTEM void register_data_value_type(const std::string &type, const std::function<Value *(Settings &, const std::string &)> &factory);
 		template<typename T>
-		void register_data_value_type(const std::string &type) {
-			register_data_value_type(type, [](ds::Settings &dataSettings, const std::string &value) -> ds::Value * {
-				return new T {dataSettings, value};
-			});
+		void register_data_value_type(const std::string &type)
+		{
+			register_data_value_type(type, [](ds::Settings &dataSettings, const std::string &value) -> ds::Value * { return new T {dataSettings, value}; });
 		}
 
 		DLLDATASYSTEM void register_base_types();
