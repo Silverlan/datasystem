@@ -33,7 +33,7 @@ bool ds::Vector::GetBool() const { return false; }
 
 /////////////
 
-ds::Vector4::Vector4(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings) { ustring::string_to_array<::Vector4::value_type, Double>(value, &m_value[0], atof, 4); }
+ds::Vector4::Vector4(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings) { ustring::string_to_array<::Vector4::value_type>(value, &m_value[0], ustring::cstring_to_number<float>, 4); }
 ds::Vector4::Vector4(ds::Settings &dataSettings, const ::Vector4 &value) : Value(dataSettings), m_value(value) {}
 std::string ds::Vector4::GetTypeString() const { return "vector4"; }
 ds::Vector4 *ds::Vector4::Copy() { return new Vector4(*m_dataSettings, m_value); }
@@ -57,7 +57,7 @@ bool ds::Vector4::GetBool() const { return false; }
 
 /////////////
 
-ds::Vector2::Vector2(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings) { ustring::string_to_array<::Vector2::value_type, Double>(value, &m_value[0], atof, 2); }
+ds::Vector2::Vector2(ds::Settings &dataSettings, const std::string &value) : Value(dataSettings) { ustring::string_to_array<::Vector2::value_type>(value, &m_value[0], ustring::cstring_to_number<float>, 2); }
 ds::Vector2::Vector2(ds::Settings &dataSettings, const ::Vector2 &value) : Value(dataSettings), m_value(value) {}
 ds::Vector2 *ds::Vector2::Copy() { return new Vector2(*m_dataSettings, m_value); }
 ds::ValueType ds::Vector2::GetType() const { return ValueType::Vector2; }
