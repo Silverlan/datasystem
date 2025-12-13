@@ -11,31 +11,31 @@ module pragma.datasystem;
 import :core;
 import pragma.filesystem;
 
-static ds::ValueTypeMap *g_DataValueFactoryMap = nullptr;
+static pragma::datasystem::ValueTypeMap *g_DataValueFactoryMap = nullptr;
 
-static ds::ValueTypeMap map;
-void ds::close() { map = {}; }
+static pragma::datasystem::ValueTypeMap map;
+void pragma::datasystem::close() { map = {}; }
 
-std::shared_ptr<ds::Settings> ds::create_data_settings(const std::unordered_map<std::string, std::string> &enums) { return std::make_shared<ds::Settings>(enums); }
-void ds::register_data_value_type(const std::string &type, const std::function<Value *(Settings &, const std::string &)> &factory)
+std::shared_ptr<pragma::datasystem::Settings> pragma::datasystem::create_data_settings(const std::unordered_map<std::string, std::string> &enums) { return std::make_shared<Settings>(enums); }
+void pragma::datasystem::register_data_value_type(const std::string &type, const std::function<Value *(Settings &, const std::string &)> &factory)
 {
 	auto ltype = type;
-	ustring::to_lower(ltype);
+	pragma::string::to_lower(ltype);
 	if(g_DataValueFactoryMap == nullptr) {
 		g_DataValueFactoryMap = &map;
 	}
 	g_DataValueFactoryMap->AddFactory(ltype, factory);
 }
-ds::ValueTypeMap *ds::get_data_value_type_map() { return g_DataValueFactoryMap; }
+pragma::datasystem::ValueTypeMap *pragma::datasystem::get_data_value_type_map() { return g_DataValueFactoryMap; }
 
-void ds::ValueTypeMap::AddFactory(const std::string &name, const std::function<Value *(Settings &, const std::string &)> &factory)
+void pragma::datasystem::ValueTypeMap::AddFactory(const std::string &name, const std::function<Value *(Settings &, const std::string &)> &factory)
 {
 	auto lname = name;
-	ustring::to_lower(lname);
+	pragma::string::to_lower(lname);
 	m_factories.insert(decltype(m_factories)::value_type(lname, factory));
 }
 
-std::function<ds::Value *(ds::Settings &, const std::string &)> ds::ValueTypeMap::FindFactory(const std::string &name)
+std::function<pragma::datasystem::Value *(pragma::datasystem::Settings &, const std::string &)> pragma::datasystem::ValueTypeMap::FindFactory(const std::string &name)
 {
 	auto it = m_factories.find(name);
 	if(it == m_factories.end())
@@ -43,29 +43,29 @@ std::function<ds::Value *(ds::Settings &, const std::string &)> ds::ValueTypeMap
 	return it->second;
 }
 
-void ds::register_base_types()
+void pragma::datasystem::register_base_types()
 {
-	register_data_value_type<ds::Bool>("bool");
-	register_data_value_type<ds::Float>("float");
-	register_data_value_type<ds::Int>("int");
-	register_data_value_type<ds::String>("string");
+	register_data_value_type<Bool>("bool");
+	register_data_value_type<Float>("float");
+	register_data_value_type<Int>("int");
+	register_data_value_type<String>("string");
 
-	register_data_value_type<ds::Vector>("vector");
-	register_data_value_type<ds::Vector2>("vector2");
-	register_data_value_type<ds::Vector4>("vector4");
+	register_data_value_type<Vector>("vector");
+	register_data_value_type<Vector2>("vector2");
+	register_data_value_type<Vector4>("vector4");
 
-	register_data_value_type<ds::Color>("color");
+	register_data_value_type<Color>("color");
 }
 
 ////////////////////////
 
-class ds::Settings : public std::enable_shared_from_this<ds::Settings> {
+class pragma::datasystem::Settings : public std::enable_shared_from_this<Settings> {
   public:
 	Settings(const std::unordered_map<std::string, std::string> &enums)
 	{
 		exprtk::symbol_table<float> fSymbolTable {};
 		for(auto &pair : enums)
-			fSymbolTable.add_constant(pair.first, util::to_float(pair.second));
+			fSymbolTable.add_constant(pair.first, pragma::util::to_float(pair.second));
 		m_expression.register_symbol_table(fSymbolTable);
 	}
 	bool ParseExpression(const std::string &expression, float &outResult)
@@ -79,7 +79,7 @@ class ds::Settings : public std::enable_shared_from_this<ds::Settings> {
 	{
 		auto r = m_parser.compile(expression, m_expression);
 		if(r)
-			outResult = umath::round(m_expression.value());
+			outResult = pragma::math::round(m_expression.value());
 		return r;
 	}
   private:
@@ -87,21 +87,21 @@ class ds::Settings : public std::enable_shared_from_this<ds::Settings> {
 	exprtk::parser<float> m_parser = {};
 };
 
-ds::Base::Base(ds::Settings &dataSettings) : m_dataSettings(dataSettings.shared_from_this()) {}
-const ds::Settings &ds::Base::GetDataSettings() const { return const_cast<Base *>(this)->GetDataSettings(); }
-ds::Settings &ds::Base::GetDataSettings() { return *m_dataSettings; }
-ds::Base *ds::Base::Copy() { return new ds::Base(*this); }
-bool ds::Base::IsBlock() const { return false; }
-bool ds::Base::IsContainer() const { return false; }
-ds::Base::~Base() {}
-std::shared_ptr<ds::Block> ds::Base::GetBlock(const std::string_view &, unsigned int) { return nullptr; }
-std::shared_ptr<ds::Block> ds::Base::GetBlock(const std::string_view &name) { return GetBlock(name, 0); }
+pragma::datasystem::Base::Base(Settings &dataSettings) : m_dataSettings(dataSettings.shared_from_this()) {}
+const pragma::datasystem::Settings &pragma::datasystem::Base::GetDataSettings() const { return const_cast<Base *>(this)->GetDataSettings(); }
+pragma::datasystem::Settings &pragma::datasystem::Base::GetDataSettings() { return *m_dataSettings; }
+pragma::datasystem::Base *pragma::datasystem::Base::Copy() { return new Base(*this); }
+bool pragma::datasystem::Base::IsBlock() const { return false; }
+bool pragma::datasystem::Base::IsContainer() const { return false; }
+pragma::datasystem::Base::~Base() {}
+std::shared_ptr<pragma::datasystem::Block> pragma::datasystem::Base::GetBlock(const std::string_view &, unsigned int) { return nullptr; }
+std::shared_ptr<pragma::datasystem::Block> pragma::datasystem::Base::GetBlock(const std::string_view &name) { return GetBlock(name, 0); }
 
 ////////////////////////
 
-ds::Iterator::Iterator(ds::Base &data) : m_target(data), m_index(0) {}
+pragma::datasystem::Iterator::Iterator(Base &data) : m_target(data), m_index(0) {}
 
-bool ds::Iterator::IsValid()
+bool pragma::datasystem::Iterator::IsValid()
 {
 	if(m_target.IsBlock()) {
 		if(m_index > 0)
@@ -110,61 +110,61 @@ bool ds::Iterator::IsValid()
 	}
 	if(!m_target.IsContainer())
 		return false;
-	auto &container = static_cast<ds::Container &>(m_target);
+	auto &container = static_cast<Container &>(m_target);
 	if(m_index >= container.GetBlockCount())
 		return false;
 	return true;
 }
 
-void ds::Iterator::operator++(int) { m_index++; }
+void pragma::datasystem::Iterator::operator++(int) { m_index++; }
 
-ds::Block *ds::Iterator::get()
+pragma::datasystem::Block *pragma::datasystem::Iterator::get()
 {
 	if(!IsValid())
 		return nullptr;
 	if(m_target.IsBlock())
-		return &static_cast<ds::Block &>(m_target);
-	return static_cast<ds::Container &>(m_target).GetBlock(m_index).get();
+		return &static_cast<Block &>(m_target);
+	return static_cast<Container &>(m_target).GetBlock(m_index).get();
 }
 
-ds::Block *ds::Iterator::operator->() { return get(); }
+pragma::datasystem::Block *pragma::datasystem::Iterator::operator->() { return get(); }
 
 ////////////////////////
 
-ds::Block::Block(Settings &dataSettings) : ds::Base(dataSettings) {}
-ds::Block::~Block() { m_data.clear(); }
-std::shared_ptr<ds::Block> ds::Block::GetBlock(const std::string_view &name, unsigned int id)
+pragma::datasystem::Block::Block(Settings &dataSettings) : Base(dataSettings) {}
+pragma::datasystem::Block::~Block() { m_data.clear(); }
+std::shared_ptr<pragma::datasystem::Block> pragma::datasystem::Block::GetBlock(const std::string_view &name, unsigned int id)
 {
 	auto &data = GetValue(name);
 	if(data == nullptr || (!data->IsBlock() && !data->IsContainer()))
 		return nullptr;
 	if(data->IsBlock())
-		return std::static_pointer_cast<ds::Block>(data);
-	return static_cast<ds::Container *>(data.get())->GetBlock(id);
+		return std::static_pointer_cast<Block>(data);
+	return static_cast<Container *>(data.get())->GetBlock(id);
 }
-bool ds::Block::IsEmpty() const { return m_data.empty(); }
-void ds::Block::RemoveValue(const std::string &key)
+bool pragma::datasystem::Block::IsEmpty() const { return m_data.empty(); }
+void pragma::datasystem::Block::RemoveValue(const std::string &key)
 {
 	auto it = m_data.find(key);
 	if(it == m_data.end())
 		return;
 	m_data.erase(it);
 }
-void ds::Block::DetachData(ds::Base &val)
+void pragma::datasystem::Block::DetachData(Base &val)
 {
 	auto it = std::find_if(m_data.begin(), m_data.end(), [&val](const std::pair<std::string, std::shared_ptr<Base>> &pair) { return pair.second.get() == &val; });
 	if(it == m_data.end())
 		return;
 	m_data.erase(it);
 }
-ds::Block *ds::Block::Copy()
+pragma::datasystem::Block *pragma::datasystem::Block::Copy()
 {
-	auto *cpy = new ds::Block(*m_dataSettings);
+	auto *cpy = new Block(*m_dataSettings);
 	for(auto it = m_data.begin(); it != m_data.end(); it++)
-		cpy->AddData(it->first, std::shared_ptr<ds::Base>(it->second->Copy()));
+		cpy->AddData(it->first, std::shared_ptr<Base>(it->second->Copy()));
 	return cpy;
 }
-std::string ds::Block::ToString(const std::optional<std::string> &rootIdentifier, uint8_t tabDepth) const
+std::string pragma::datasystem::Block::ToString(const std::optional<std::string> &rootIdentifier, uint8_t tabDepth) const
 {
 	std::stringstream ss;
 	if(rootIdentifier.has_value()) {
@@ -173,26 +173,26 @@ std::string ds::Block::ToString(const std::optional<std::string> &rootIdentifier
 	}
 
 	std::string t(tabDepth, '\t');
-	std::function<void(const ds::Block &, const std::string &)> fIterateDataBlock = nullptr;
-	fIterateDataBlock = [&ss, &fIterateDataBlock](const ds::Block &block, const std::string &t) {
+	std::function<void(const Block &, const std::string &)> fIterateDataBlock = nullptr;
+	fIterateDataBlock = [&ss, &fIterateDataBlock](const Block &block, const std::string &t) {
 		auto *data = block.GetData();
 		if(data == nullptr)
 			return;
 		for(auto &pair : *data) {
 			if(pair.second->IsBlock()) {
-				auto &block = static_cast<ds::Block &>(*pair.second);
+				auto &block = static_cast<Block &>(*pair.second);
 				ss << t << "\"" << pair.first << "\"\n" << t << "{\n";
 				fIterateDataBlock(block, t + '\t');
 				ss << t << "}\n";
 				continue;
 			}
 			if(pair.second->IsContainer()) {
-				auto &container = static_cast<ds::Container &>(*pair.second);
+				auto &container = static_cast<Container &>(*pair.second);
 				ss << t << "\"" << pair.first << "\"\n" << t << "{\n";
 				for(auto &block : container.GetBlocks()) {
 					if(block->IsContainer() || block->IsBlock())
 						throw std::invalid_argument {"Data set block may only contain values!"};
-					auto *dsValue = dynamic_cast<ds::Value *>(pair.second.get());
+					auto *dsValue = dynamic_cast<Value *>(pair.second.get());
 					if(dsValue == nullptr)
 						throw std::invalid_argument {"Unexpected data set type!"};
 					ss << t << "\t\"" << dsValue->GetString() << "\"\n";
@@ -200,7 +200,7 @@ std::string ds::Block::ToString(const std::optional<std::string> &rootIdentifier
 				ss << t << "}\n";
 				continue;
 			}
-			auto *dsValue = dynamic_cast<ds::Value *>(pair.second.get());
+			auto *dsValue = dynamic_cast<Value *>(pair.second.get());
 			if(dsValue == nullptr)
 				throw std::invalid_argument {"Unexpected data set type!"};
 			ss << t << "$" << dsValue->GetTypeString() << " \"" << pair.first << "\" \"" << dsValue->GetString() << "\"\n";
@@ -211,12 +211,12 @@ std::string ds::Block::ToString(const std::optional<std::string> &rootIdentifier
 		ss << "}\n";
 	return ss.str();
 }
-bool ds::Block::IsBlock() const { return true; }
-const ds::Block::DataMap *ds::Block::GetData() const { return &m_data; }
-void ds::Block::AddData(const std::string &name, const std::shared_ptr<Base> &data)
+bool pragma::datasystem::Block::IsBlock() const { return true; }
+const pragma::datasystem::Block::DataMap *pragma::datasystem::Block::GetData() const { return &m_data; }
+void pragma::datasystem::Block::AddData(const std::string &name, const std::shared_ptr<Base> &data)
 {
 	auto lname = name;
-	//ustring::to_lower(lname);
+	//pragma::string::to_lower(lname);
 	auto it = m_data.find(lname);
 	if(it == m_data.end()) {
 		data->m_dataSettings = m_dataSettings;
@@ -228,178 +228,178 @@ void ds::Block::AddData(const std::string &name, const std::shared_ptr<Base> &da
 		return;
 	}
 	if(it->second->IsContainer()) {
-		static_cast<ds::Container &>(*it->second).AddData(std::static_pointer_cast<ds::Block>(data));
+		static_cast<Container &>(*it->second).AddData(std::static_pointer_cast<Block>(data));
 		return;
 	}
-	auto container = std::shared_ptr<ds::Container>(new ds::Container(*m_dataSettings));
-	container->AddData(std::static_pointer_cast<ds::Block>(it->second));
-	container->AddData(std::static_pointer_cast<ds::Block>(data));
+	auto container = std::shared_ptr<Container>(new Container(*m_dataSettings));
+	container->AddData(std::static_pointer_cast<Block>(it->second));
+	container->AddData(std::static_pointer_cast<Block>(data));
 	it->second = container;
 }
-const std::shared_ptr<ds::Base> &ds::Block::GetValue(const std::string_view &key) const
+const std::shared_ptr<pragma::datasystem::Base> &pragma::datasystem::Block::GetValue(const std::string_view &key) const
 {
-	static std::shared_ptr<ds::Base> nptr = nullptr;
+	static std::shared_ptr<Base> nptr = nullptr;
 	auto it = m_data.find(key);
 	if(it == m_data.end())
 		return nptr;
 	return it->second;
 }
-std::shared_ptr<ds::Value> ds::Block::GetDataValue(const std::string_view &key) const
+std::shared_ptr<pragma::datasystem::Value> pragma::datasystem::Block::GetDataValue(const std::string_view &key) const
 {
 	auto it = m_data.find(key);
 	if(it == m_data.end() || it->second->IsBlock() || it->second->IsContainer())
 		return nullptr;
-	return std::static_pointer_cast<ds::Value>(it->second);
+	return std::static_pointer_cast<Value>(it->second);
 }
-std::shared_ptr<ds::Block> ds::Block::AddBlock(const std::string &name)
+std::shared_ptr<pragma::datasystem::Block> pragma::datasystem::Block::AddBlock(const std::string &name)
 {
 	auto val = GetValue(name);
 	if(val && val->IsBlock())
-		return std::static_pointer_cast<ds::Block>(val);
-	auto block = std::make_shared<ds::Block>(GetDataSettings());
+		return std::static_pointer_cast<Block>(val);
+	auto block = std::make_shared<Block>(GetDataSettings());
 	AddData(name, block);
 	return block;
 }
-void ds::Block::AddValue(const std::string &name, const std::string &value) { AddValue<std::string, ds::String>(name, value, "string"); }
-void ds::Block::AddValue(const std::string &name, const ::Color &value) { AddValue<::Color, ds::Color>(name, value, "color"); }
-void ds::Block::AddValue(const std::string &name, const ::Vector2 &value) { AddValue<::Vector2, ds::Vector2>(name, value, "vector2"); }
-void ds::Block::AddValue(const std::string &name, const ::Vector3 &value) { AddValue<::Vector3, ds::Vector>(name, value, "vector"); }
-void ds::Block::AddValue(const std::string &name, const ::Vector4 &value) { AddValue<::Vector4, ds::Vector4>(name, value, "vector4"); }
-std::shared_ptr<ds::Base> ds::Block::AddValue(const std::string &type, const std::string &name, const std::string &value)
+void pragma::datasystem::Block::AddValue(const std::string &name, const std::string &value) { AddValue<std::string, String>(name, value, "string"); }
+void pragma::datasystem::Block::AddValue(const std::string &name, const ::Color &value) { AddValue<::Color, Color>(name, value, "color"); }
+void pragma::datasystem::Block::AddValue(const std::string &name, const ::Vector2 &value) { AddValue<::Vector2, Vector2>(name, value, "vector2"); }
+void pragma::datasystem::Block::AddValue(const std::string &name, const Vector3 &value) { AddValue<Vector3, Vector>(name, value, "vector"); }
+void pragma::datasystem::Block::AddValue(const std::string &name, const ::Vector4 &value) { AddValue<::Vector4, Vector4>(name, value, "vector4"); }
+std::shared_ptr<pragma::datasystem::Base> pragma::datasystem::Block::AddValue(const std::string &type, const std::string &name, const std::string &value)
 {
-	static std::shared_ptr<ds::Base> nptr = nullptr;
+	static std::shared_ptr<Base> nptr = nullptr;
 	auto ltype = type;
-	ustring::to_lower(ltype);
+	pragma::string::to_lower(ltype);
 	auto factory = g_DataValueFactoryMap->FindFactory(ltype);
 	if(factory == nullptr)
 		return nptr;
-	auto data = std::static_pointer_cast<ds::Base>(std::shared_ptr<ds::Value>(factory(*m_dataSettings, value)));
+	auto data = std::static_pointer_cast<Base>(std::shared_ptr<Value>(factory(*m_dataSettings, value)));
 	AddData(name, data);
 	return data;
 }
-bool ds::Block::GetString(const std::string_view &key, std::string *data) const
+bool pragma::datasystem::Block::GetString(const std::string_view &key, std::string *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
 		return false;
-	auto *vdata = static_cast<ds::Value *>(val.get());
+	auto *vdata = static_cast<Value *>(val.get());
 	*data = vdata->GetString();
 	return true;
 }
-bool ds::Block::GetInt(const std::string_view &key, int *data) const
+bool pragma::datasystem::Block::GetInt(const std::string_view &key, int *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
 		return 0;
-	auto *vdata = static_cast<ds::Value *>(val.get());
+	auto *vdata = static_cast<Value *>(val.get());
 	*data = vdata->GetInt();
 	return true;
 }
-bool ds::Block::GetFloat(const std::string_view &key, float *data) const
+bool pragma::datasystem::Block::GetFloat(const std::string_view &key, float *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
 		return 0.f;
-	auto *vdata = static_cast<ds::Value *>(val.get());
+	auto *vdata = static_cast<Value *>(val.get());
 	*data = vdata->GetFloat();
 	return true;
 }
-bool ds::Block::GetBool(const std::string_view &key, bool *data) const
+bool pragma::datasystem::Block::GetBool(const std::string_view &key, bool *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
 		return false;
-	auto *vdata = static_cast<ds::Value *>(val.get());
+	auto *vdata = static_cast<Value *>(val.get());
 	*data = vdata->GetBool();
 	return true;
 }
-bool ds::Block::GetColor(const std::string_view &key, ::Color *data) const
+bool pragma::datasystem::Block::GetColor(const std::string_view &key, ::Color *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
 		return false;
-	auto *vdata = static_cast<ds::Value *>(val.get());
+	auto *vdata = static_cast<Value *>(val.get());
 	*data = vdata->GetColor();
 	return true;
 }
-bool ds::Block::GetVector3(const std::string_view &key, ::Vector3 *data) const
+bool pragma::datasystem::Block::GetVector3(const std::string_view &key, Vector3 *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
 		return false;
-	auto *vdata = static_cast<ds::Value *>(val.get());
+	auto *vdata = static_cast<Value *>(val.get());
 	*data = vdata->GetVector();
 	return true;
 }
-bool ds::Block::GetVector2(const std::string_view &key, ::Vector2 *data) const
+bool pragma::datasystem::Block::GetVector2(const std::string_view &key, ::Vector2 *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
 		return false;
-	auto *vdata = static_cast<ds::Value *>(val.get());
+	auto *vdata = static_cast<Value *>(val.get());
 	*data = vdata->GetVector2();
 	return true;
 }
-bool ds::Block::GetVector4(const std::string_view &key, ::Vector4 *data) const
+bool pragma::datasystem::Block::GetVector4(const std::string_view &key, ::Vector4 *data) const
 {
 	auto &val = GetValue(key);
 	if(val == nullptr || val->IsBlock())
 		return false;
-	auto *vdata = static_cast<ds::Value *>(val.get());
+	auto *vdata = static_cast<Value *>(val.get());
 	*data = vdata->GetVector4();
 	return true;
 }
-bool ds::Block::HasValue(const std::string_view &key) const { return GetValue(key) != nullptr; }
-std::string ds::Block::GetString(const std::string_view &key, const std::string &def) const
+bool pragma::datasystem::Block::HasValue(const std::string_view &key) const { return GetValue(key) != nullptr; }
+std::string pragma::datasystem::Block::GetString(const std::string_view &key, const std::string &def) const
 {
 	std::string value;
 	if(!GetString(key, &value))
 		value = def;
 	return value;
 }
-int ds::Block::GetInt(const std::string_view &key, int def) const
+int pragma::datasystem::Block::GetInt(const std::string_view &key, int def) const
 {
 	int value;
 	if(!GetInt(key, &value))
 		value = def;
 	return value;
 }
-float ds::Block::GetFloat(const std::string_view &key, float def) const
+float pragma::datasystem::Block::GetFloat(const std::string_view &key, float def) const
 {
 	float value;
 	if(!GetFloat(key, &value))
 		value = def;
 	return value;
 }
-bool ds::Block::GetBool(const std::string_view &key, bool def) const
+bool pragma::datasystem::Block::GetBool(const std::string_view &key, bool def) const
 {
 	bool value;
 	if(!GetBool(key, &value))
 		value = def;
 	return value;
 }
-::Color ds::Block::GetColor(const std::string_view &key, const ::Color &def) const
+Color pragma::datasystem::Block::GetColor(const std::string_view &key, const ::Color &def) const
 {
 	::Color value;
 	if(!GetColor(key, &value))
 		value = def;
 	return value;
 }
-::Vector3 ds::Block::GetVector3(const std::string_view &key, const ::Vector3 &def) const
+Vector3 pragma::datasystem::Block::GetVector3(const std::string_view &key, const Vector3 &def) const
 {
-	::Vector3 value;
+	Vector3 value;
 	if(!GetVector3(key, &value))
 		value = def;
 	return value;
 }
-::Vector2 ds::Block::GetVector2(const std::string_view &key, const ::Vector2 &def) const
+Vector2 pragma::datasystem::Block::GetVector2(const std::string_view &key, const ::Vector2 &def) const
 {
 	::Vector2 value;
 	if(!GetVector2(key, &value))
 		value = def;
 	return value;
 }
-::Vector4 ds::Block::GetVector4(const std::string_view &key, const ::Vector4 &def) const
+Vector4 pragma::datasystem::Block::GetVector4(const std::string_view &key, const ::Vector4 &def) const
 {
 	::Vector4 value;
 	if(!GetVector4(key, &value))
@@ -407,73 +407,73 @@ bool ds::Block::GetBool(const std::string_view &key, bool def) const
 	return value;
 }
 
-bool ds::Block::IsString(const std::string_view &key) const { return IsType<ds::String>(key); }
-bool ds::Block::IsInt(const std::string_view &key) const { return IsType<ds::Int>(key); }
-bool ds::Block::IsFloat(const std::string_view &key) const { return IsType<ds::Float>(key); }
-bool ds::Block::IsBool(const std::string_view &key) const { return IsType<ds::Bool>(key); }
-bool ds::Block::IsColor(const std::string_view &key) const { return IsType<ds::Color>(key); }
-bool ds::Block::IsVector2(const std::string_view &key) const { return IsType<ds::Vector2>(key); }
-bool ds::Block::IsVector3(const std::string_view &key) const { return IsType<ds::Vector>(key); }
-bool ds::Block::IsVector4(const std::string_view &key) const { return IsType<ds::Vector4>(key); }
-bool ds::Block::GetRawString(const std::string_view &key, std::string *v) const
+bool pragma::datasystem::Block::IsString(const std::string_view &key) const { return IsType<String>(key); }
+bool pragma::datasystem::Block::IsInt(const std::string_view &key) const { return IsType<Int>(key); }
+bool pragma::datasystem::Block::IsFloat(const std::string_view &key) const { return IsType<Float>(key); }
+bool pragma::datasystem::Block::IsBool(const std::string_view &key) const { return IsType<Bool>(key); }
+bool pragma::datasystem::Block::IsColor(const std::string_view &key) const { return IsType<Color>(key); }
+bool pragma::datasystem::Block::IsVector2(const std::string_view &key) const { return IsType<Vector2>(key); }
+bool pragma::datasystem::Block::IsVector3(const std::string_view &key) const { return IsType<Vector>(key); }
+bool pragma::datasystem::Block::IsVector4(const std::string_view &key) const { return IsType<Vector4>(key); }
+bool pragma::datasystem::Block::GetRawString(const std::string_view &key, std::string *v) const
 {
-	auto data = GetRawType<ds::String>(key);
+	auto data = GetRawType<String>(key);
 	if(data == nullptr)
 		return false;
 	*v = data->GetString();
 	return true;
 }
-bool ds::Block::GetRawInt(const std::string_view &key, int *v) const
+bool pragma::datasystem::Block::GetRawInt(const std::string_view &key, int *v) const
 {
-	auto data = GetRawType<ds::Int>(key);
+	auto data = GetRawType<Int>(key);
 	if(data == nullptr)
 		return false;
 	*v = data->GetInt();
 	return true;
 }
-bool ds::Block::GetRawFloat(const std::string_view &key, float *v) const
+bool pragma::datasystem::Block::GetRawFloat(const std::string_view &key, float *v) const
 {
-	auto data = GetRawType<ds::Float>(key);
+	auto data = GetRawType<Float>(key);
 	if(data == nullptr)
 		return false;
 	*v = data->GetFloat();
 	return true;
 }
-bool ds::Block::GetRawBool(const std::string_view &key, bool *v) const
+bool pragma::datasystem::Block::GetRawBool(const std::string_view &key, bool *v) const
 {
-	auto data = GetRawType<ds::Bool>(key);
+	auto data = GetRawType<Bool>(key);
 	if(data == nullptr)
 		return false;
 	*v = data->GetBool();
 	return true;
 }
-bool ds::Block::GetRawColor(const std::string_view &key, ::Color *v) const
+bool pragma::datasystem::Block::GetRawColor(const std::string_view &key, ::Color *v) const
 {
-	auto data = GetRawType<ds::Color>(key);
+	auto data = GetRawType<Color>(key);
 	if(data == nullptr)
 		return false;
 	*v = data->GetColor();
 	return true;
 }
-bool ds::Block::GetRawVector3(const std::string_view &key, ::Vector3 *v) const
+bool pragma::datasystem::Block::GetRawVector3(const std::string_view &key, Vector3 *v) const
 {
-	auto data = GetRawType<ds::Vector>(key);
+	auto data = GetRawType<Vector>(key);
 	if(data == nullptr)
 		return false;
 	*v = data->GetVector();
 	return true;
 }
-bool ds::Block::GetRawVector2(const std::string_view &key, ::Vector2 *v) const
+bool pragma::datasystem::Block::GetRawVector2(const std::string_view &key, ::Vector2 *v) const
 {
-	auto data = GetRawType<ds::Vector2>(key);
+	auto data = GetRawType<Vector2>(key);
 	if(data == nullptr)
 		return false;
 	*v = data->GetVector2();
 	return true;
 }
-bool ds::Block::GetRawVector4(const std::string_view &key, ::Vector4 *v) const
+bool pragma::datasystem::Block::GetRawVector4(const std::string_view &key, ::Vector4 *v) const
 {
-	auto data = GetRawType<ds::Vector4>(key);
+	auto data = GetRawType<Vector4>(key);
 	if(data == nullptr)
 		return false;
 	*v = data->GetVector4();
@@ -482,26 +482,26 @@ bool ds::Block::GetRawVector4(const std::string_view &key, ::Vector4 *v) const
 
 ////////////////////////
 
-ds::Container::Container(Settings &dataSettings) : ds::Base(dataSettings) {}
-ds::Container::~Container() { m_dataBlocks.clear(); }
-bool ds::Container::IsContainer() const { return true; }
-void ds::Container::AddData(const std::shared_ptr<Block> &data)
+pragma::datasystem::Container::Container(Settings &dataSettings) : Base(dataSettings) {}
+pragma::datasystem::Container::~Container() { m_dataBlocks.clear(); }
+bool pragma::datasystem::Container::IsContainer() const { return true; }
+void pragma::datasystem::Container::AddData(const std::shared_ptr<Block> &data)
 {
 	m_dataBlocks.push_back(data);
 	data->m_dataSettings = m_dataSettings;
 }
-std::shared_ptr<ds::Block> ds::Container::GetBlock(unsigned int id)
+std::shared_ptr<pragma::datasystem::Block> pragma::datasystem::Container::GetBlock(unsigned int id)
 {
 	if(id >= m_dataBlocks.size())
 		return nullptr;
 	return m_dataBlocks[id];
 }
-std::vector<std::shared_ptr<ds::Block>> &ds::Container::GetBlocks() { return m_dataBlocks; }
-uint32_t ds::Container::GetBlockCount() const { return static_cast<unsigned int>(m_dataBlocks.size()); }
+std::vector<std::shared_ptr<pragma::datasystem::Block>> &pragma::datasystem::Container::GetBlocks() { return m_dataBlocks; }
+uint32_t pragma::datasystem::Container::GetBlockCount() const { return static_cast<unsigned int>(m_dataBlocks.size()); }
 
 ////////////////////////
 
-ds::Value::Value(Settings &dataSettings) : ds::Base(dataSettings) {}
+pragma::datasystem::Value::Value(Settings &dataSettings) : Base(dataSettings) {}
 
 ////////////////////////
 
@@ -602,16 +602,16 @@ static std::string ReadValue(unsigned long long c, ufile::IFile &f)
 		return val;
 	}
 	f.Seek(f.Tell() - 1);
-	val = ReadUntil(f, ustring::WHITESPACE + "},");
+	val = ReadUntil(f, pragma::string::WHITESPACE + "},");
 	return val;
 }
 
-static bool read_block_data(ds::Block &block, const std::unordered_map<std::string, std::string> &enums, const std::shared_ptr<ds::Settings> &dataSettings, ufile::IFile &f, int &listID, std::string blockType = "", bool bMainBlock = false)
+static bool read_block_data(pragma::datasystem::Block &block, const std::unordered_map<std::string, std::string> &enums, const std::shared_ptr<pragma::datasystem::Settings> &dataSettings, ufile::IFile &f, int &listID, std::string blockType = "", bool bMainBlock = false)
 {
 	if(f.Eof())
 		return false;
-	auto c = FindFirstNotOf(f, ustring::WHITESPACE);
-	if(c == ustring::NOT_FOUND)
+	auto c = FindFirstNotOf(f, pragma::string::WHITESPACE);
+	if(c == pragma::string::NOT_FOUND)
 		return false;
 	if(c == '}') {
 		f.Seek(f.Tell() - 1);
@@ -624,21 +624,21 @@ static bool read_block_data(ds::Block &block, const std::unordered_map<std::stri
 			if(!blockType.empty())
 				return false;
 			f.Seek(f.Tell() + 1);
-			c = FindFirstNotOf(f, ustring::WHITESPACE);
+			c = FindFirstNotOf(f, pragma::string::WHITESPACE);
 			if(c == -1)
 				return false;
 			auto name = ReadValue(c, f);
-			ustring::remove_quotes(name);
-			//ustring::to_lower(name);
+			pragma::string::remove_quotes(name);
+			//pragma::string::to_lower(name);
 			//f.Seek(f.Tell() +1);
-			c = FindFirstNotOf(f, ustring::WHITESPACE);
+			c = FindFirstNotOf(f, pragma::string::WHITESPACE);
 			if(c == -1)
 				return false;
 			ident = ident.substr(1);
-			ustring::to_lower(ident);
+			pragma::string::to_lower(ident);
 			if(c != '{') {
 				auto value = ReadValue(c, f);
-				ustring::remove_quotes(value);
+				pragma::string::remove_quotes(value);
 				auto it = enums.find(value);
 				if(it != enums.end())
 					value = it->second;
@@ -654,18 +654,18 @@ static bool read_block_data(ds::Block &block, const std::unordered_map<std::stri
 		}
 	default:
 		{
-			auto c = FindFirstNotOf(f, ustring::WHITESPACE);
-			if(c == ustring::NOT_FOUND)
+			auto c = FindFirstNotOf(f, pragma::string::WHITESPACE);
+			if(c == pragma::string::NOT_FOUND)
 				return false;
 			switch(c) {
 			case '{':
 				{
-					auto sub = std::make_shared<ds::Block>(*dataSettings);
+					auto sub = std::make_shared<pragma::datasystem::Block>(*dataSettings);
 					bool r;
 					do
 						r = read_block_data(*sub, enums, dataSettings, f, listID, blockType);
 					while(r == true);
-					auto subBase = std::static_pointer_cast<ds::Base>(sub);
+					auto subBase = std::static_pointer_cast<pragma::datasystem::Base>(sub);
 					block.AddData(ident, subBase);
 					listID = 0;
 					f.Seek(f.Tell() + 1);
@@ -673,7 +673,7 @@ static bool read_block_data(ds::Block &block, const std::unordered_map<std::stri
 				}
 			case ',':
 				{
-					c = FindFirstNotOf(f, ustring::WHITESPACE);
+					c = FindFirstNotOf(f, pragma::string::WHITESPACE);
 					if(c == -1)
 						return false;
 				}
@@ -716,11 +716,11 @@ void PrintBlocks(std::string name,DataBase *data,std::string t="\t")
 		PrintBlocks(i->first,i->second,t);
 }*/
 
-std::shared_ptr<ds::Block> ds::System::ReadData(ufile::IFile &f, const std::unordered_map<std::string, std::string> &enums)
+std::shared_ptr<pragma::datasystem::Block> pragma::datasystem::System::ReadData(ufile::IFile &f, const std::unordered_map<std::string, std::string> &enums)
 {
-	auto dataSettings = ds::create_data_settings(enums);
+	auto dataSettings = pragma::datasystem::create_data_settings(enums);
 
-	auto data = std::make_shared<ds::Block>(*dataSettings);
+	auto data = std::make_shared<Block>(*dataSettings);
 	auto listID = 0;
 	// f.IgnoreComments("//");
 	// f.IgnoreComments("/*","*/");
@@ -729,103 +729,103 @@ std::shared_ptr<ds::Block> ds::System::ReadData(ufile::IFile &f, const std::unor
 		return nullptr;
 	return data;
 }
-std::shared_ptr<ds::Block> ds::System::LoadData(const char *path, const std::unordered_map<std::string, std::string> &enums)
+std::shared_ptr<pragma::datasystem::Block> pragma::datasystem::System::LoadData(const char *path, const std::unordered_map<std::string, std::string> &enums)
 {
-	auto f = FileManager::OpenFile(path, "r");
+	auto f = pragma::fs::open_file(path, pragma::fs::FileMode::Read);
 	if(f == nullptr)
 		return nullptr;
-	fsys::File fp {f};
+	fs::File fp {f};
 	return ReadData(fp, enums);
 }
 
 ////////////////////////
 
-ds::String::String(Settings &dataSettings, const std::string &value) : ds::Value(dataSettings), m_value(value) {}
-ds::Value *ds::String::Copy() { return new ds::String(*m_dataSettings, GetValue()); }
-ds::ValueType ds::String::GetType() const { return ValueType::String; }
+pragma::datasystem::String::String(Settings &dataSettings, const std::string &value) : Value(dataSettings), m_value(value) {}
+pragma::datasystem::Value *pragma::datasystem::String::Copy() { return new String(*m_dataSettings, GetValue()); }
+pragma::datasystem::ValueType pragma::datasystem::String::GetType() const { return ValueType::String; }
 
-const std::string &ds::String::GetValue() const { return m_value; }
-void ds::String::SetValue(const std::string &value) { m_value = value; }
+const std::string &pragma::datasystem::String::GetValue() const { return m_value; }
+void pragma::datasystem::String::SetValue(const std::string &value) { m_value = value; }
 
-std::string ds::String::GetString() const { return m_value; }
-int ds::String::GetInt() const { return util::to_int(m_value); }
-float ds::String::GetFloat() const { return util::to_float(m_value); }
-bool ds::String::GetBool() const { return util::to_boolean(m_value); }
-::Color ds::String::GetColor() const { return ::Color {m_value}; }
-::Vector3 ds::String::GetVector() const { return uvec::create(m_value); }
-::Vector2 ds::String::GetVector2() const
+std::string pragma::datasystem::String::GetString() const { return m_value; }
+int pragma::datasystem::String::GetInt() const { return pragma::util::to_int(m_value); }
+float pragma::datasystem::String::GetFloat() const { return pragma::util::to_float(m_value); }
+bool pragma::datasystem::String::GetBool() const { return pragma::util::to_boolean(m_value); }
+Color pragma::datasystem::String::GetColor() const { return ::Color {m_value}; }
+Vector3 pragma::datasystem::String::GetVector() const { return uvec::create(m_value); }
+Vector2 pragma::datasystem::String::GetVector2() const
 {
 	auto v = uvec::create(m_value);
 	return ::Vector2 {v.x, v.y};
 }
-::Vector4 ds::String::GetVector4() const { return uvec::create_v4(m_value); }
-std::string ds::String::GetTypeString() const { return "string"; }
+Vector4 pragma::datasystem::String::GetVector4() const { return uvec::create_v4(m_value); }
+std::string pragma::datasystem::String::GetTypeString() const { return "string"; }
 
 ////////////////////////
 
-ds::Int::Int(Settings &dataSettings, const std::string &value) : ds::Value(dataSettings)
+pragma::datasystem::Int::Int(Settings &dataSettings, const std::string &value) : Value(dataSettings)
 {
 	if(GetDataSettings().ParseExpression(value, m_value) == false)
-		m_value = util::to_int(value);
+		m_value = pragma::util::to_int(value);
 }
-ds::Int::Int(Settings &dataSettings, int32_t value) : ds::Value(dataSettings), m_value(value) {}
-ds::Value *ds::Int::Copy() { return new ds::Int(*m_dataSettings, m_value); }
-ds::ValueType ds::Int::GetType() const { return ValueType::Int; }
-int32_t ds::Int::GetValue() const { return m_value; }
-void ds::Int::SetValue(int32_t value) { m_value = value; }
+pragma::datasystem::Int::Int(Settings &dataSettings, int32_t value) : Value(dataSettings), m_value(value) {}
+pragma::datasystem::Value *pragma::datasystem::Int::Copy() { return new Int(*m_dataSettings, m_value); }
+pragma::datasystem::ValueType pragma::datasystem::Int::GetType() const { return ValueType::Int; }
+int32_t pragma::datasystem::Int::GetValue() const { return m_value; }
+void pragma::datasystem::Int::SetValue(int32_t value) { m_value = value; }
 
-std::string ds::Int::GetString() const { return std::to_string(m_value); }
-int ds::Int::GetInt() const { return m_value; }
-float ds::Int::GetFloat() const { return static_cast<float>(m_value); }
-bool ds::Int::GetBool() const { return (m_value != 0) ? true : false; }
-::Color ds::Int::GetColor() const { return ::Color {static_cast<int16_t>(m_value), static_cast<int16_t>(m_value), static_cast<int16_t>(m_value), 255}; }
-::Vector3 ds::Int::GetVector() const { return ::Vector3 {m_value, m_value, m_value}; }
-::Vector2 ds::Int::GetVector2() const { return ::Vector2 {m_value, m_value}; }
-::Vector4 ds::Int::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
-std::string ds::Int::GetTypeString() const { return "int"; }
+std::string pragma::datasystem::Int::GetString() const { return std::to_string(m_value); }
+int pragma::datasystem::Int::GetInt() const { return m_value; }
+float pragma::datasystem::Int::GetFloat() const { return static_cast<float>(m_value); }
+bool pragma::datasystem::Int::GetBool() const { return (m_value != 0) ? true : false; }
+Color pragma::datasystem::Int::GetColor() const { return ::Color {static_cast<int16_t>(m_value), static_cast<int16_t>(m_value), static_cast<int16_t>(m_value), 255}; }
+Vector3 pragma::datasystem::Int::GetVector() const { return Vector3 {m_value, m_value, m_value}; }
+Vector2 pragma::datasystem::Int::GetVector2() const { return ::Vector2 {m_value, m_value}; }
+Vector4 pragma::datasystem::Int::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
+std::string pragma::datasystem::Int::GetTypeString() const { return "int"; }
 
 ////////////////////////
 
-ds::Float::Float(Settings &dataSettings, const std::string &value) : ds::Value(dataSettings)
+pragma::datasystem::Float::Float(Settings &dataSettings, const std::string &value) : Value(dataSettings)
 {
 	if(GetDataSettings().ParseExpression(value, m_value) == false)
-		m_value = util::to_int(value);
+		m_value = pragma::util::to_int(value);
 }
-ds::Float::Float(Settings &dataSettings, float value) : ds::Value(dataSettings), m_value(value) {}
-ds::Value *ds::Float::Copy() { return new ds::Float(*m_dataSettings, m_value); }
-ds::ValueType ds::Float::GetType() const { return ValueType::Float; }
-float ds::Float::GetValue() const { return m_value; }
-void ds::Float::SetValue(float value) { m_value = value; }
+pragma::datasystem::Float::Float(Settings &dataSettings, float value) : Value(dataSettings), m_value(value) {}
+pragma::datasystem::Value *pragma::datasystem::Float::Copy() { return new Float(*m_dataSettings, m_value); }
+pragma::datasystem::ValueType pragma::datasystem::Float::GetType() const { return ValueType::Float; }
+float pragma::datasystem::Float::GetValue() const { return m_value; }
+void pragma::datasystem::Float::SetValue(float value) { m_value = value; }
 
-std::string ds::Float::GetString() const { return std::to_string(m_value); }
-int ds::Float::GetInt() const { return m_value; }
-float ds::Float::GetFloat() const { return static_cast<float>(m_value); }
-bool ds::Float::GetBool() const { return (m_value != 0) ? true : false; }
-::Color ds::Float::GetColor() const
+std::string pragma::datasystem::Float::GetString() const { return std::to_string(m_value); }
+int pragma::datasystem::Float::GetInt() const { return m_value; }
+float pragma::datasystem::Float::GetFloat() const { return static_cast<float>(m_value); }
+bool pragma::datasystem::Float::GetBool() const { return (m_value != 0) ? true : false; }
+Color pragma::datasystem::Float::GetColor() const
 {
 	auto v = static_cast<int16_t>(m_value * 255.f);
 	return ::Color {v, v, v, 255};
 }
-::Vector3 ds::Float::GetVector() const { return ::Vector3 {m_value, m_value, m_value}; }
-::Vector2 ds::Float::GetVector2() const { return ::Vector2 {m_value, m_value}; }
-::Vector4 ds::Float::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
-std::string ds::Float::GetTypeString() const { return "float"; }
+Vector3 pragma::datasystem::Float::GetVector() const { return Vector3 {m_value, m_value, m_value}; }
+Vector2 pragma::datasystem::Float::GetVector2() const { return ::Vector2 {m_value, m_value}; }
+Vector4 pragma::datasystem::Float::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
+std::string pragma::datasystem::Float::GetTypeString() const { return "float"; }
 
 ////////////////////////
 
-ds::Bool::Bool(Settings &dataSettings, const std::string &value) : ds::Value(dataSettings), m_value(util::to_boolean(value)) {}
-ds::Bool::Bool(Settings &dataSettings, bool value) : ds::Value(dataSettings), m_value(value) {}
-ds::Value *ds::Bool::Copy() { return new ds::Bool(*m_dataSettings, m_value); }
-ds::ValueType ds::Bool::GetType() const { return ValueType::Bool; }
-bool ds::Bool::GetValue() const { return m_value; }
-void ds::Bool::SetValue(bool value) { m_value = value; }
+pragma::datasystem::Bool::Bool(Settings &dataSettings, const std::string &value) : Value(dataSettings), m_value(pragma::util::to_boolean(value)) {}
+pragma::datasystem::Bool::Bool(Settings &dataSettings, bool value) : Value(dataSettings), m_value(value) {}
+pragma::datasystem::Value *pragma::datasystem::Bool::Copy() { return new Bool(*m_dataSettings, m_value); }
+pragma::datasystem::ValueType pragma::datasystem::Bool::GetType() const { return ValueType::Bool; }
+bool pragma::datasystem::Bool::GetValue() const { return m_value; }
+void pragma::datasystem::Bool::SetValue(bool value) { m_value = value; }
 
-std::string ds::Bool::GetString() const { return std::to_string(m_value); }
-int ds::Bool::GetInt() const { return m_value; }
-float ds::Bool::GetFloat() const { return static_cast<float>(m_value); }
-bool ds::Bool::GetBool() const { return (m_value != 0) ? true : false; }
-::Color ds::Bool::GetColor() const { return ::Color {m_value ? 255 : 0, m_value ? 255 : 0, m_value ? 255 : 0, 255}; }
-::Vector3 ds::Bool::GetVector() const { return ::Vector3 {m_value, m_value, m_value}; }
-::Vector2 ds::Bool::GetVector2() const { return ::Vector2 {m_value, m_value}; }
-::Vector4 ds::Bool::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
-std::string ds::Bool::GetTypeString() const { return "bool"; }
+std::string pragma::datasystem::Bool::GetString() const { return std::to_string(m_value); }
+int pragma::datasystem::Bool::GetInt() const { return m_value; }
+float pragma::datasystem::Bool::GetFloat() const { return static_cast<float>(m_value); }
+bool pragma::datasystem::Bool::GetBool() const { return (m_value != 0) ? true : false; }
+Color pragma::datasystem::Bool::GetColor() const { return ::Color {m_value ? 255 : 0, m_value ? 255 : 0, m_value ? 255 : 0, 255}; }
+Vector3 pragma::datasystem::Bool::GetVector() const { return Vector3 {m_value, m_value, m_value}; }
+Vector2 pragma::datasystem::Bool::GetVector2() const { return ::Vector2 {m_value, m_value}; }
+Vector4 pragma::datasystem::Bool::GetVector4() const { return ::Vector4 {m_value, m_value, m_value, m_value}; }
+std::string pragma::datasystem::Bool::GetTypeString() const { return "bool"; }

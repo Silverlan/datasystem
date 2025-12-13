@@ -9,11 +9,11 @@ export module pragma.datasystem:vector;
 
 export import :core;
 
-export namespace ds {
+export namespace pragma::datasystem {
 	class DLLDATASYSTEM Vector : public Value {
 	  public:
-		Vector(ds::Settings &dataSettings, const std::string &value);
-		Vector(ds::Settings &dataSettings, const Vector3 &value);
+		Vector(Settings &dataSettings, const std::string &value);
+		Vector(Settings &dataSettings, const Vector3 &value);
 		virtual Vector *Copy() override;
 		const Vector3 &GetValue() const;
 		void SetValue(const Vector3 &value);
@@ -25,7 +25,7 @@ export namespace ds {
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
-		virtual ::Vector3 GetVector() const override;
+		virtual Vector3 GetVector() const override;
 		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	  private:
@@ -33,8 +33,8 @@ export namespace ds {
 	};
 	class DLLDATASYSTEM Vector4 : public Value {
 	  public:
-		Vector4(ds::Settings &dataSettings, const std::string &value);
-		Vector4(ds::Settings &dataSettings, const ::Vector4 &value);
+		Vector4(Settings &dataSettings, const std::string &value);
+		Vector4(Settings &dataSettings, const ::Vector4 &value);
 		virtual Vector4 *Copy() override;
 		const ::Vector4 &GetValue() const;
 		void SetValue(const ::Vector4 &value);
@@ -46,7 +46,7 @@ export namespace ds {
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
-		virtual ::Vector3 GetVector() const override;
+		virtual Vector3 GetVector() const override;
 		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	  private:
@@ -54,8 +54,8 @@ export namespace ds {
 	};
 	class DLLDATASYSTEM Vector2 : public Value {
 	  public:
-		Vector2(ds::Settings &dataSettings, const std::string &value);
-		Vector2(ds::Settings &dataSettings, const ::Vector2 &value);
+		Vector2(Settings &dataSettings, const std::string &value);
+		Vector2(Settings &dataSettings, const ::Vector2 &value);
 		virtual Vector2 *Copy() override;
 		const ::Vector2 &GetValue() const;
 		void SetValue(const ::Vector2 &value);
@@ -68,7 +68,7 @@ export namespace ds {
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
 		virtual ::Vector2 GetVector2() const override;
-		virtual ::Vector3 GetVector() const override;
+		virtual Vector3 GetVector() const override;
 		virtual ::Vector4 GetVector4() const override;
 	  private:
 		::Vector2 m_value;

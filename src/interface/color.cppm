@@ -9,11 +9,11 @@ export module pragma.datasystem:color;
 
 export import :core;
 
-export namespace ds {
+export namespace pragma::datasystem {
 	class DLLDATASYSTEM Color : public Value {
 	  public:
-		Color(ds::Settings &dataSettings, const std::string &value);
-		Color(ds::Settings &dataSettings, const ::Color &value);
+		Color(Settings &dataSettings, const std::string &value);
+		Color(Settings &dataSettings, const ::Color &value);
 		virtual Color *Copy() override;
 		const ::Color &GetValue() const;
 		void SetValue(const ::Color &value);
@@ -25,7 +25,7 @@ export namespace ds {
 		virtual float GetFloat() const override;
 		virtual bool GetBool() const override;
 		virtual ::Color GetColor() const override;
-		virtual ::Vector3 GetVector() const override;
+		virtual Vector3 GetVector() const override;
 		virtual ::Vector2 GetVector2() const override;
 		virtual ::Vector4 GetVector4() const override;
 	  private:

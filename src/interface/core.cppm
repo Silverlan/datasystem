@@ -13,7 +13,7 @@ export import pragma.math;
 export {
 #pragma warning(push)
 #pragma warning(disable : 4251)
-	namespace ds {
+	namespace pragma::datasystem {
 		enum class ValueType : uint8_t {
 			Invalid,
 			String,
@@ -77,13 +77,13 @@ export {
 		class DLLDATASYSTEM Value;
 		class DLLDATASYSTEM Block : public Base {
 		  public:
-			using DataMap = std::unordered_map<std::string, std::shared_ptr<Base>, util::hl_string_hash, std::equal_to<>>;
+			using DataMap = std::unordered_map<std::string, std::shared_ptr<Base>, pragma::util::hl_string_hash, std::equal_to<>>;
 		  private:
 			DataMap m_data;
 
 			template<typename T, class TDs>
 			    requires(
-			      std::is_same_v<TDs, ds::String> || std::is_same_v<TDs, ds::Int> || std::is_same_v<TDs, ds::Float> || std::is_same_v<TDs, ds::Bool> || std::is_same_v<TDs, ds::Color> || std::is_same_v<TDs, ds::Vector2> || std::is_same_v<TDs, ds::Vector> || std::is_same_v<TDs, ds::Vector4>)
+			      std::is_same_v<TDs, String> || std::is_same_v<TDs, Int> || std::is_same_v<TDs, Float> || std::is_same_v<TDs, Bool> || std::is_same_v<TDs, Color> || std::is_same_v<TDs, Vector2> || std::is_same_v<TDs, Vector> || std::is_same_v<TDs, Vector4>)
 			void AddValue(const std::string &name, const T &value, const char *typeName);
 		  public:
 			Block(Settings &dataSettings);
@@ -98,23 +98,23 @@ export {
 			;
 			std::string ToString(const std::optional<std::string> &rootIdentifier, uint8_t tabDepth = 0) const;
 			virtual void AddData(const std::string &name, const std::shared_ptr<Base> &data);
-			std::shared_ptr<ds::Base> AddValue(const std::string &type, const std::string &name, const std::string &value);
+			std::shared_ptr<Base> AddValue(const std::string &type, const std::string &name, const std::string &value);
 
 			template<typename T>
 			    requires(std::is_arithmetic_v<T>)
 			void AddValue(const std::string &name, const T &value)
 			{
 				if constexpr(std::is_same_v<std::remove_cvref_t<T>, bool>)
-					AddValue<bool, ds::Bool>(name, value, "bool");
+					AddValue<bool, Bool>(name, value, "bool");
 				else if constexpr(std::is_floating_point_v<T>)
-					AddValue<float, ds::Float>(name, value, "float");
+					AddValue<float, Float>(name, value, "float");
 				else
-					AddValue<int, ds::Int>(name, value, "int");
+					AddValue<int, Int>(name, value, "int");
 			}
 			void AddValue(const std::string &name, const std::string &value);
 			void AddValue(const std::string &name, const ::Color &value);
 			void AddValue(const std::string &name, const ::Vector2 &value);
-			void AddValue(const std::string &name, const ::Vector3 &value);
+			void AddValue(const std::string &name, const Vector3 &value);
 			void AddValue(const std::string &name, const ::Vector4 &value);
 			template<typename T>
 			    requires(std::is_enum_v<T>)
@@ -133,7 +133,7 @@ export {
 			bool GetBool(const std::string_view &key, bool def = false) const;
 			::Color GetColor(const std::string_view &key, const ::Color &def = colors::White) const;
 			::Vector2 GetVector2(const std::string_view &key, const ::Vector2 &def = {}) const;
-			::Vector3 GetVector3(const std::string_view &key, const ::Vector3 &def = {}) const;
+			Vector3 GetVector3(const std::string_view &key, const Vector3 &def = {}) const;
 			::Vector4 GetVector4(const std::string_view &key, const ::Vector4 &def = {}) const;
 
 			bool GetString(const std::string_view &key, std::string *data) const;
@@ -142,7 +142,7 @@ export {
 			bool GetBool(const std::string_view &key, bool *data) const;
 			bool GetColor(const std::string_view &key, ::Color *data) const;
 			bool GetVector2(const std::string_view &key, ::Vector2 *data) const;
-			bool GetVector3(const std::string_view &key, ::Vector3 *data) const;
+			bool GetVector3(const std::string_view &key, Vector3 *data) const;
 			bool GetVector4(const std::string_view &key, ::Vector4 *data) const;
 
 			bool IsString(const std::string_view &key) const;
@@ -160,7 +160,7 @@ export {
 			bool GetRawBool(const std::string_view &key, bool *v) const;
 			bool GetRawColor(const std::string_view &key, ::Color *v) const;
 			bool GetRawVector2(const std::string_view &key, ::Vector2 *v) const;
-			bool GetRawVector3(const std::string_view &key, ::Vector3 *v) const;
+			bool GetRawVector3(const std::string_view &key, Vector3 *v) const;
 			bool GetRawVector4(const std::string_view &key, ::Vector4 *v) const;
 
 			template<typename T>
@@ -199,7 +199,7 @@ export {
 			virtual float GetFloat() const = 0;
 			virtual bool GetBool() const = 0;
 			virtual ::Color GetColor() const = 0;
-			virtual ::Vector3 GetVector() const = 0;
+			virtual Vector3 GetVector() const = 0;
 			virtual ::Vector2 GetVector2() const = 0;
 			virtual ::Vector4 GetVector4() const = 0;
 		};
@@ -222,7 +222,7 @@ export {
 		template<typename T>
 		void register_data_value_type(const std::string &type)
 		{
-			register_data_value_type(type, [](ds::Settings &dataSettings, const std::string &value) -> ds::Value * { return new T {dataSettings, value}; });
+			register_data_value_type(type, [](Settings &dataSettings, const std::string &value) -> Value * { return new T {dataSettings, value}; });
 		}
 
 		DLLDATASYSTEM void register_base_types();
@@ -244,7 +244,7 @@ export {
 			virtual float GetFloat() const override;
 			virtual bool GetBool() const override;
 			virtual ::Color GetColor() const override;
-			virtual ::Vector3 GetVector() const override;
+			virtual Vector3 GetVector() const override;
 			virtual ::Vector2 GetVector2() const override;
 			virtual ::Vector4 GetVector4() const override;
 		  private:
@@ -266,7 +266,7 @@ export {
 			virtual float GetFloat() const override;
 			virtual bool GetBool() const override;
 			virtual ::Color GetColor() const override;
-			virtual ::Vector3 GetVector() const override;
+			virtual Vector3 GetVector() const override;
 			virtual ::Vector2 GetVector2() const override;
 			virtual ::Vector4 GetVector4() const override;
 		  private:
@@ -288,7 +288,7 @@ export {
 			virtual float GetFloat() const override;
 			virtual bool GetBool() const override;
 			virtual ::Color GetColor() const override;
-			virtual ::Vector3 GetVector() const override;
+			virtual Vector3 GetVector() const override;
 			virtual ::Vector2 GetVector2() const override;
 			virtual ::Vector4 GetVector4() const override;
 		  private:
@@ -310,7 +310,7 @@ export {
 			virtual float GetFloat() const override;
 			virtual bool GetBool() const override;
 			virtual ::Color GetColor() const override;
-			virtual ::Vector3 GetVector() const override;
+			virtual Vector3 GetVector() const override;
 			virtual ::Vector2 GetVector2() const override;
 			virtual ::Vector4 GetVector4() const override;
 		  private:
@@ -319,7 +319,7 @@ export {
 	};
 #pragma warning(pop)
 
-	namespace ds {
+	namespace pragma::datasystem {
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpotentially-evaluated-expression"
@@ -345,10 +345,10 @@ export {
 		}
 	}
 
-	namespace ds {
+	namespace pragma::datasystem {
 		template<typename T, class TDs>
 		    requires(
-		      std::is_same_v<TDs, ds::String> || std::is_same_v<TDs, ds::Int> || std::is_same_v<TDs, ds::Float> || std::is_same_v<TDs, ds::Bool> || std::is_same_v<TDs, ds::Color> || std::is_same_v<TDs, ds::Vector2> || std::is_same_v<TDs, ds::Vector> || std::is_same_v<TDs, ds::Vector4>)
+		      std::is_same_v<TDs, String> || std::is_same_v<TDs, Int> || std::is_same_v<TDs, Float> || std::is_same_v<TDs, Bool> || std::is_same_v<TDs, Color> || std::is_same_v<TDs, Vector2> || std::is_same_v<TDs, Vector> || std::is_same_v<TDs, Vector4>)
 		void Block::AddValue(const std::string &name, const T &value, const char *typeName)
 		{
 			auto dsVal = GetDataValue(name);
@@ -360,17 +360,17 @@ export {
 				}
 				RemoveValue(name);
 			}
-			if constexpr(std::is_same_v<TDs, ds::String>)
+			if constexpr(std::is_same_v<TDs, String>)
 				AddValue(typeName, name, value);
-			else if constexpr(std::is_same_v<TDs, ds::Int> || std::is_same_v<TDs, ds::Float> || std::is_same_v<TDs, ds::Bool>)
+			else if constexpr(std::is_same_v<TDs, Int> || std::is_same_v<TDs, Float> || std::is_same_v<TDs, Bool>)
 				AddValue(typeName, name, std::to_string(value));
-			else if constexpr(std::is_same_v<TDs, ds::Color>)
+			else if constexpr(std::is_same_v<TDs, Color>)
 				AddValue(typeName, name, std::to_string(value.r) + ' ' + std::to_string(value.g) + ' ' + std::to_string(value.b) + ' ' + std::to_string(value.a));
-			else if constexpr(std::is_same_v<TDs, ds::Vector2>)
+			else if constexpr(std::is_same_v<TDs, Vector2>)
 				AddValue(typeName, name, std::to_string(value.x) + ' ' + std::to_string(value.y));
-			else if constexpr(std::is_same_v<TDs, ds::Vector>)
+			else if constexpr(std::is_same_v<TDs, Vector>)
 				AddValue(typeName, name, std::to_string(value.x) + ' ' + std::to_string(value.y) + ' ' + std::to_string(value.z));
-			else if constexpr(std::is_same_v<TDs, ds::Vector4>)
+			else if constexpr(std::is_same_v<TDs, Vector4>)
 				AddValue(typeName, name, std::to_string(value.x) + ' ' + std::to_string(value.y) + ' ' + std::to_string(value.z) + ' ' + std::to_string(value.w));
 			else
 				static_assert(false, "Unknown type");
