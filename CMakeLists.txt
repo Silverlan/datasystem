@@ -2,6 +2,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/pr_common.cmake)
 
 set(PROJ_NAME datasystem)
 pr_add_library(${PROJ_NAME} SHARED)
+pr_add_export_macro(${PROJ_NAME} DLLDATASYSTEM)
 
 pr_add_dependency(${PROJ_NAME} vfilesystem TARGET PUBLIC)
 pr_add_third_party_dependency(${PROJ_NAME} exprtk)

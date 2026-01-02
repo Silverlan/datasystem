@@ -3,7 +3,6 @@
 
 module;
 
-#include "definitions.hpp"
 #include <exprtk.hpp>
 
 module pragma.datasystem;
