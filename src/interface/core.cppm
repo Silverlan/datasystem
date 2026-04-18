@@ -359,15 +359,15 @@ export {
 			if constexpr(std::is_same_v<TDs, String>)
 				AddValue(typeName, name, value);
 			else if constexpr(std::is_same_v<TDs, Int> || std::is_same_v<TDs, Float> || std::is_same_v<TDs, Bool>)
-				AddValue(typeName, name, std::to_string(value));
+				AddValue(typeName, name, util::to_string(value));
 			else if constexpr(std::is_same_v<TDs, Color>)
-				AddValue(typeName, name, std::to_string(value.r) + ' ' + std::to_string(value.g) + ' ' + std::to_string(value.b) + ' ' + std::to_string(value.a));
+				AddValue(typeName, name, util::to_string(value.r) + ' ' + util::to_string(value.g) + ' ' + util::to_string(value.b) + ' ' + util::to_string(value.a));
 			else if constexpr(std::is_same_v<TDs, Vector2>)
-				AddValue(typeName, name, std::to_string(value.x) + ' ' + std::to_string(value.y));
+				AddValue(typeName, name, util::to_string(value.x) + ' ' + util::to_string(value.y));
 			else if constexpr(std::is_same_v<TDs, Vector>)
-				AddValue(typeName, name, std::to_string(value.x) + ' ' + std::to_string(value.y) + ' ' + std::to_string(value.z));
+				AddValue(typeName, name, util::to_string(value.x) + ' ' + util::to_string(value.y) + ' ' + util::to_string(value.z));
 			else if constexpr(std::is_same_v<TDs, Vector4>)
-				AddValue(typeName, name, std::to_string(value.x) + ' ' + std::to_string(value.y) + ' ' + std::to_string(value.z) + ' ' + std::to_string(value.w));
+				AddValue(typeName, name, util::to_string(value.x) + ' ' + util::to_string(value.y) + ' ' + util::to_string(value.z) + ' ' + util::to_string(value.w));
 			else
 				static_assert(false, "Unknown type");
 		}

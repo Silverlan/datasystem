@@ -683,7 +683,7 @@ static bool read_block_data(pragma::datasystem::Block &block, const std::unorder
 					auto it = enums.find(ident);
 					if(it != enums.end())
 						ident = it->second;
-					block.AddValue(blockType, std::to_string(listID), ident);
+					block.AddValue(blockType, pragma::util::to_string(listID), ident);
 					f.Seek(f.Tell() - 1);
 					listID++;
 					break;
@@ -773,7 +773,7 @@ pragma::datasystem::ValueType pragma::datasystem::Int::GetType() const { return 
 int32_t pragma::datasystem::Int::GetValue() const { return m_value; }
 void pragma::datasystem::Int::SetValue(int32_t value) { m_value = value; }
 
-std::string pragma::datasystem::Int::GetString() const { return std::to_string(m_value); }
+std::string pragma::datasystem::Int::GetString() const { return util::to_string(m_value); }
 int pragma::datasystem::Int::GetInt() const { return m_value; }
 float pragma::datasystem::Int::GetFloat() const { return static_cast<float>(m_value); }
 bool pragma::datasystem::Int::GetBool() const { return (m_value != 0) ? true : false; }
@@ -796,7 +796,7 @@ pragma::datasystem::ValueType pragma::datasystem::Float::GetType() const { retur
 float pragma::datasystem::Float::GetValue() const { return m_value; }
 void pragma::datasystem::Float::SetValue(float value) { m_value = value; }
 
-std::string pragma::datasystem::Float::GetString() const { return std::to_string(m_value); }
+std::string pragma::datasystem::Float::GetString() const { return util::to_string(m_value); }
 int pragma::datasystem::Float::GetInt() const { return m_value; }
 float pragma::datasystem::Float::GetFloat() const { return static_cast<float>(m_value); }
 bool pragma::datasystem::Float::GetBool() const { return (m_value != 0) ? true : false; }
@@ -819,7 +819,7 @@ pragma::datasystem::ValueType pragma::datasystem::Bool::GetType() const { return
 bool pragma::datasystem::Bool::GetValue() const { return m_value; }
 void pragma::datasystem::Bool::SetValue(bool value) { m_value = value; }
 
-std::string pragma::datasystem::Bool::GetString() const { return std::to_string(m_value); }
+std::string pragma::datasystem::Bool::GetString() const { return util::to_string(m_value); }
 int pragma::datasystem::Bool::GetInt() const { return m_value; }
 float pragma::datasystem::Bool::GetFloat() const { return static_cast<float>(m_value); }
 bool pragma::datasystem::Bool::GetBool() const { return (m_value != 0) ? true : false; }
